@@ -1,0 +1,6 @@
+#[link(name = "hubbub",
+       vers = "0.1")];
+#[crate_type = "lib"];
+
+mod ll;
+

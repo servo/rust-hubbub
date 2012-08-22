@@ -15,8 +15,17 @@ const NEEDDATA: c_int = 9;
 const BADENCODING: c_int = 10;
 const UNKNOWN: c_int = 11;
 
+#[cfg(target_os = "macos")]
 #[nolink]
 #[link_args="-L../libhubbub -lhubbub -L../libparserutils -lparserutils -liconv"]
+extern mod linking { }
+
+#[cfg(target_os = "linux")]
+#[nolink]
+#[link_args="-L../libhubbub -lhubbub -L../libparserutils -lparserutils"]
+extern mod linking { }
+
+#[nolink]
 extern mod error {
     fn hubbub_error_to_string(error: Error) -> *u8;
 }
@@ -49,7 +58,6 @@ struct ParserOptParamsContentModel {
 }
 
 #[nolink]
-#[link_args="-L../libhubbub -lhubbub -L../libparserutils -lparserutils -liconv"]
 extern mod parser {
     fn hubbub_parser_create(enc: *u8,
                             fix_enc: bool,

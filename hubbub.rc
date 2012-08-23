@@ -2,5 +2,6 @@
        vers = "0.1")];
 #[crate_type = "lib"];
 
+mod hubbub;
 mod ll;
 

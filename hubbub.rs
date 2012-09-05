@@ -114,7 +114,7 @@ impl Parser {
                 set_quirks_mode: tree_callbacks::set_quirks_mode,
                 encoding_change: tree_callbacks::encoding_change,
                 complete_script: tree_callbacks::complete_script,
-                ctx: reinterpret_cast(&addr_of(self.tree_handler))
+                ctx: reinterpret_cast(&ptr::addr_of(self.tree_handler))
             }
         });
 
@@ -123,7 +123,7 @@ impl Parser {
             None =>
                 fail ~"not possible",
             Some(ref tree_handler_pair) =>
-                ptr = reinterpret_cast(& &tree_handler_pair.ll_tree_handler)
+                ptr = reinterpret_cast(&ptr::addr_of(tree_handler_pair.ll_tree_handler))
         }
 
         debug!("setting tree handler");
@@ -143,7 +143,7 @@ impl Parser {
     fn enable_scripting(&self, enable: bool) unsafe {
         let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                             ll::PARSER_ENABLE_SCRIPTING,
-                                                            reinterpret_cast(& &enable));
+                                                            reinterpret_cast(&ptr::addr_of(enable)));
         assert hubbub_error == ll::OK;
     }
 

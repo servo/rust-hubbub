@@ -126,7 +126,6 @@ impl Parser {
                 ptr = reinterpret_cast(&ptr::addr_of(tree_handler_pair.ll_tree_handler))
         }
 
-        debug!("setting tree handler");
         let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                             ll::PARSER_TREE_HANDLER,
                                                             reinterpret_cast(&ptr));
@@ -134,6 +133,7 @@ impl Parser {
     }
 
     fn set_document_node(&self, node: Node) unsafe {
+        debug!("setting document node");
         let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                             ll::PARSER_DOCUMENT_NODE,
                                                             reinterpret_cast(&node));
@@ -141,6 +141,7 @@ impl Parser {
     }
 
     fn enable_scripting(&self, enable: bool) unsafe {
+        debug!("enabling scripting");
         let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                             ll::PARSER_ENABLE_SCRIPTING,
                                                             reinterpret_cast(&ptr::addr_of(enable)));
@@ -148,6 +149,7 @@ impl Parser {
     }
 
     fn parse_chunk(&self, data: &[u8]) unsafe {
+        debug!("parsing chunk");
         let ptr = vec::unsafe::to_ptr_slice(data);
         let hubbub_error = ll::parser::hubbub_parser_parse_chunk(self.hubbub_parser, ptr,
                                                                  data.len() as size_t);
@@ -155,6 +157,7 @@ impl Parser {
     }
 
     fn insert_chunk(&self, data: &[u8]) unsafe {
+        debug!("inserting chunk");
         let ptr = vec::unsafe::to_ptr_slice(data);
         let hubbub_error = ll::parser::hubbub_parser_insert_chunk(self.hubbub_parser, ptr,
                                                                   data.len() as size_t);
@@ -162,6 +165,7 @@ impl Parser {
     }
 
     fn completed(&self) {
+        debug!("completing");
         let hubbub_error = ll::parser::hubbub_parser_completed(self.hubbub_parser);
         assert hubbub_error == ll::OK;
     }
@@ -249,6 +253,7 @@ mod tree_callbacks {
 
     extern fn create_comment(ctx: *c_void, data: *ll::String, result: *mut *c_void)
                           -> ll::Error unsafe {
+        debug!("ll create comment");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         let data = reinterpret_cast(&data);
@@ -278,6 +283,7 @@ mod tree_callbacks {
 
     extern fn create_text(ctx: *c_void, data: *ll::String, result: *mut *c_void)
                        -> ll::Error unsafe {
+        debug!("ll create text");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         let data = reinterpret_cast(&data);
@@ -286,6 +292,7 @@ mod tree_callbacks {
     }
 
     extern fn ref_node(ctx: *c_void, node: *c_void) -> ll::Error unsafe {
+        debug!("ll ref node");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         self.tree_handler.ref_node(from_hubbub_node(node));
@@ -293,6 +300,7 @@ mod tree_callbacks {
     }
 
     extern fn unref_node(ctx: *c_void, node: *c_void) -> ll::Error unsafe {
+        debug!("ll unref node");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         self.tree_handler.unref_node(from_hubbub_node(node));
@@ -301,6 +309,7 @@ mod tree_callbacks {
 
     extern fn append_child(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
                         -> ll::Error unsafe {
+        debug!("ll append child");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         *result = to_hubbub_node(self.tree_handler.append_child(from_hubbub_node(parent),
@@ -310,6 +319,7 @@ mod tree_callbacks {
 
     extern fn insert_before(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
                         -> ll::Error unsafe {
+        debug!("ll insert_before");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         *result = to_hubbub_node(self.tree_handler.insert_before(from_hubbub_node(parent),
@@ -319,6 +329,7 @@ mod tree_callbacks {
 
     extern fn remove_child(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
                         -> ll::Error unsafe {
+        debug!("ll remove child");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         *result = to_hubbub_node(self.tree_handler.remove_child(from_hubbub_node(parent),
@@ -328,6 +339,7 @@ mod tree_callbacks {
 
     extern fn clone_node(ctx: *c_void, node: *c_void, deep: bool, result: *mut *c_void)
                       -> ll::Error unsafe {
+        debug!("ll clone node");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         *result = to_hubbub_node(self.tree_handler.clone_node(from_hubbub_node(node), deep));
@@ -336,6 +348,7 @@ mod tree_callbacks {
 
     extern fn reparent_children(ctx: *c_void, node: *c_void, new_parent: *c_void)
                              -> ll::Error unsafe {
+        debug!("ll reparent children");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         self.tree_handler.reparent_children(from_hubbub_node(node), from_hubbub_node(new_parent));
@@ -344,6 +357,7 @@ mod tree_callbacks {
 
     extern fn get_parent(ctx: *c_void, node: *c_void, element_only: bool, result: *mut *c_void)
                       -> ll::Error unsafe {
+        debug!("ll get parent");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         *result = to_hubbub_node(self.tree_handler.get_parent(from_hubbub_node(node),
@@ -352,6 +366,7 @@ mod tree_callbacks {
     }
 
     extern fn has_children(ctx: *c_void, node: *c_void, result: *mut bool) -> ll::Error unsafe {
+        debug!("ll has children");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         *result = self.tree_handler.has_children(from_hubbub_node(node));
@@ -370,6 +385,7 @@ mod tree_callbacks {
                              attributes: *ll::Attribute,
                              n_attributes: u32)
                           -> ll::Error unsafe {
+        debug!("ll add attrs");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         self.tree_handler.add_attributes(from_hubbub_node(node),
@@ -378,6 +394,7 @@ mod tree_callbacks {
     }
 
     extern fn set_quirks_mode(ctx: *c_void, mode: ll::QuirksMode) -> ll::Error unsafe {
+        debug!("ll set quirks");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         self.tree_handler.set_quirks_mode(from_hubbub_quirks_mode(mode));
@@ -385,6 +402,7 @@ mod tree_callbacks {
     }
 
     extern fn encoding_change(ctx: *c_void, encname: *c_char) -> ll::Error unsafe {
+        debug!("ll encoding change");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         self.tree_handler.encoding_change(str::unsafe::from_c_str(encname));
@@ -392,6 +410,7 @@ mod tree_callbacks {
     }
 
     extern fn complete_script(ctx: *c_void, script: *c_void) -> ll::Error unsafe {
+        debug!("ll set quirks");
         let self_opt: &Option<TreeHandlerPair> = reinterpret_cast(&ctx);
         let self = self_opt.get();
         self.tree_handler.complete_script(from_hubbub_node(script));

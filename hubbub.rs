@@ -21,57 +21,57 @@ enum Ns {
 }
 
 struct Doctype {
-    name: &str;
-    public_id: Option<&str>;
-    system_id: Option<&str>;
-    force_quirks: bool;
+    name: &str,
+    public_id: Option<&str>,
+    system_id: Option<&str>,
+    force_quirks: bool
 }
 
 struct Attribute {
-    ns: Ns;
-    name: &str;
-    value: &str;
+    ns: Ns,
+    name: &str,
+    value: &str,
 }
 
 struct Tag {
-    ns: Ns;
-    name: &str;
-    attributes: ~[Attribute];
-    self_closing: bool;
+    ns: Ns,
+    name: &str,
+    attributes: ~[Attribute],
+    self_closing: bool
 }
 
 // FIXME: This is terribly type-unsafe. But we don't have working generic extern functions yet...
 type Node = uint;
 
 struct TreeHandler {
-    create_comment: @fn(data: &str) -> Node;
-    create_doctype: @fn(doctype: &Doctype) -> Node;
-    create_element: @fn(tag: &Tag) -> Node;
-    create_text: @fn(data: &str) -> Node;
-    ref_node: @fn(node: Node);
-    unref_node: @fn(node: Node);
-    append_child: @fn(parent: Node, child: Node) -> Node;
-    insert_before: @fn(parent: Node, child: Node) -> Node;
-    remove_child: @fn(parent: Node, child: Node) -> Node;
-    clone_node: @fn(node: Node, deep: bool) -> Node;
-    reparent_children: @fn(node: Node, new_parent: Node) -> Node;
-    get_parent: @fn(node: Node, element_only: bool) -> Node;
-    has_children: @fn(node: Node) -> bool;
-    form_associate: @fn(form: Node, node: Node);
-    add_attributes: @fn(node: Node, attribute: &[Attribute]);
-    set_quirks_mode: @fn(mode: QuirksMode);
-    encoding_change: @fn(encname: &str);
-    complete_script: @fn(script: Node);
+    create_comment: @fn(data: &str) -> Node,
+    create_doctype: @fn(doctype: &Doctype) -> Node,
+    create_element: @fn(tag: &Tag) -> Node,
+    create_text: @fn(data: &str) -> Node,
+    ref_node: @fn(node: Node),
+    unref_node: @fn(node: Node),
+    append_child: @fn(parent: Node, child: Node) -> Node,
+    insert_before: @fn(parent: Node, child: Node) -> Node,
+    remove_child: @fn(parent: Node, child: Node) -> Node,
+    clone_node: @fn(node: Node, deep: bool) -> Node,
+    reparent_children: @fn(node: Node, new_parent: Node) -> Node,
+    get_parent: @fn(node: Node, element_only: bool) -> Node,
+    has_children: @fn(node: Node) -> bool,
+    form_associate: @fn(form: Node, node: Node),
+    add_attributes: @fn(node: Node, attribute: &[Attribute]),
+    set_quirks_mode: @fn(mode: QuirksMode),
+    encoding_change: @fn(encname: &str),
+    complete_script: @fn(script: Node)
 }
 
 struct TreeHandlerPair {
-    tree_handler: @TreeHandler;
-    ll_tree_handler: ll::TreeHandler;
+    tree_handler: @TreeHandler,
+    ll_tree_handler: ll::TreeHandler
 }
 
 struct Parser {
-    hubbub_parser: *ll::Parser;
-    mut tree_handler: Option<TreeHandlerPair>;
+    hubbub_parser: *ll::Parser,
+    mut tree_handler: Option<TreeHandlerPair>,
 
     drop {
         ll::parser::hubbub_parser_destroy(self.hubbub_parser);

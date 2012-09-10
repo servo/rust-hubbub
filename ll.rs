@@ -44,17 +44,17 @@ const PARSER_ENABLE_SCRIPTING: c_int = 5;
 const PARSER_PAUSE: c_int = 6;
 
 struct ParserOptParamsTokenHandler {
-    handler: *u8;
-    pw: *c_void;
+    handler: *u8,
+    pw: *c_void
 }
 
 struct ParserOptParamsErrorHandler {
-    handler: *u8;
-    pw: *c_void;
+    handler: *u8,
+    pw: *c_void
 }
 
 struct ParserOptParamsContentModel {
-    content_model: ContentModel;
+    content_model: ContentModel
 }
 
 #[nolink]
@@ -77,25 +77,25 @@ extern mod parser {
 // tree.h
 
 struct TreeHandler {
-    create_comment: *u8;
-    create_doctype: *u8;
-    create_element: *u8;
-    create_text: *u8;
-    ref_node: *u8;
-    unref_node: *u8;
-    append_child: *u8;
-    insert_before: *u8;
-    remove_child: *u8;
-    clone_node: *u8;
-    reparent_children: *u8;
-    get_parent: *u8;
-    has_children: *u8;
-    form_associate: *u8;
-    add_attributes: *u8;
-    set_quirks_mode: *u8;
-    encoding_change: *u8;
-    complete_script: *u8;
-    ctx: *c_void;
+    create_comment: *u8,
+    create_doctype: *u8,
+    create_element: *u8,
+    create_text: *u8,
+    ref_node: *u8,
+    unref_node: *u8,
+    append_child: *u8,
+    insert_before: *u8,
+    remove_child: *u8,
+    clone_node: *u8,
+    reparent_children: *u8,
+    get_parent: *u8,
+    has_children: *u8,
+    form_associate: *u8,
+    add_attributes: *u8,
+    set_quirks_mode: *u8,
+    encoding_change: *u8,
+    complete_script: *u8,
+    ctx: *c_void
 }
 
 // types.h
@@ -139,36 +139,36 @@ const NS_XML: c_int = 5;
 const NS_XMLNS: c_int = 6;
 
 struct String {
-    ptr: *u8;
-    len: size_t;
+    ptr: *u8,
+    len: size_t
 }
 
 struct Attribute {
-    ns: NS;
-    name: String;
-    value: String;
+    ns: NS,
+    name: String,
+    value: String,
 }
 
 struct Doctype {
-    name: String;
-    public_missing: bool;
-    public_id: String;
-    system_missing: bool;
-    system_id: String;
-    force_quirks: bool;
+    name: String,
+    public_missing: bool,
+    public_id: String,
+    system_missing: bool,
+    system_id: String,
+    force_quirks: bool,
 }
 
 struct Tag {
-    ns: NS;
-    name: String;
-    n_attributes: u32;
-    attributes: *Attribute;
-    self_closing: bool;
+    ns: NS,
+    name: String,
+    n_attributes: u32,
+    attributes: *Attribute,
+    self_closing: bool,
 }
 
 // Token data
 struct Token {
-    token_type: TokenType;
-    data: u8;   // union: one of Doctype, Tag, Comment (string), or Character (string)
+    token_type: TokenType,
+    data: u8,   // union: one of Doctype, Tag, Comment (string), or Character (string)
 }
 

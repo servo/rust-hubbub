@@ -150,7 +150,7 @@ impl Parser {
 
     fn parse_chunk(&self, data: &[u8]) unsafe {
         debug!("parsing chunk");
-        let ptr = vec::unsafe::to_ptr_slice(data);
+        let ptr = vec::raw::to_ptr(data);
         let hubbub_error = ll::parser::hubbub_parser_parse_chunk(self.hubbub_parser, ptr,
                                                                  data.len() as size_t);
         assert hubbub_error == ll::OK;
@@ -158,7 +158,7 @@ impl Parser {
 
     fn insert_chunk(&self, data: &[u8]) unsafe {
         debug!("inserting chunk");
-        let ptr = vec::unsafe::to_ptr_slice(data);
+        let ptr = vec::raw::to_ptr(data);
         let hubbub_error = ll::parser::hubbub_parser_insert_chunk(self.hubbub_parser, ptr,
                                                                   data.len() as size_t);
         assert hubbub_error == ll::OK;
@@ -180,7 +180,7 @@ mod tree_callbacks {
     }
 
     fn from_hubbub_string(string: &a/ll::String) -> &a/str unsafe {
-        return str::unsafe::from_buf_len_nocopy(&(*string).ptr, (*string).len as uint);
+        return str::raw::from_buf_len_nocopy(&(*string).ptr, (*string).len as uint);
     }
 
     fn from_hubbub_ns(ns: ll::NS) -> Ns {
@@ -415,7 +415,7 @@ mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
         let self = self_opt.get();
-        self.tree_handler.encoding_change(str::unsafe::from_c_str(encname));
+        self.tree_handler.encoding_change(str::raw::from_c_str(encname));
         return ll::OK;
     }
 

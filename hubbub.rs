@@ -1,8 +1,8 @@
 // High-level bindings to the Hubbub HTML5 parser.
 
+use cast::transmute;
 use libc::{c_char, c_void, size_t};
 use ptr::{addr_of, null, offset, to_unsafe_ptr};
-use unsafe::transmute;
 
 enum QuirksMode {
     NoQuirks,
@@ -180,7 +180,9 @@ mod tree_callbacks {
     }
 
     fn from_hubbub_string(string: &a/ll::String) -> &a/str unsafe {
-        return str::raw::from_buf_len_nocopy(&(*string).ptr, (*string).len as uint);
+        do str::raw::buf_as_slice((*string).ptr, (*string).len as uint) |s| {
+            cast::transmute(copy s)
+        }
     }
 
     fn from_hubbub_ns(ns: ll::NS) -> Ns {

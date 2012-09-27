@@ -4,13 +4,13 @@ use cast::transmute;
 use libc::{c_char, c_void, size_t};
 use ptr::{addr_of, null, offset, to_unsafe_ptr};
 
-enum QuirksMode {
+pub enum QuirksMode {
     NoQuirks,
     LimitedQuirks,
     FullQuirks
 }
 
-enum Ns {
+pub enum Ns {
     NullNs,
     HtmlNs,
     MathMlNs,
@@ -20,20 +20,20 @@ enum Ns {
     XmlNsNs
 }
 
-struct Doctype {
+pub struct Doctype {
     name: &str,
     public_id: Option<&str>,
     system_id: Option<&str>,
     force_quirks: bool
 }
 
-struct Attribute {
+pub struct Attribute {
     ns: Ns,
     name: &str,
     value: &str,
 }
 
-struct Tag {
+pub struct Tag {
     ns: Ns,
     name: &str,
     attributes: ~[Attribute],
@@ -41,9 +41,9 @@ struct Tag {
 }
 
 // FIXME: This is terribly type-unsafe. But we don't have working generic extern functions yet...
-type Node = uint;
+pub type Node = uint;
 
-struct TreeHandler {
+pub struct TreeHandler {
     create_comment: @fn(data: &str) -> Node,
     create_doctype: @fn(doctype: &Doctype) -> Node,
     create_element: @fn(tag: &Tag) -> Node,
@@ -64,12 +64,12 @@ struct TreeHandler {
     complete_script: @fn(script: Node)
 }
 
-struct TreeHandlerPair {
+pub struct TreeHandlerPair {
     tree_handler: @TreeHandler,
     ll_tree_handler: ll::TreeHandler
 }
 
-struct Parser {
+pub struct Parser {
     hubbub_parser: *ll::Parser,
     mut tree_handler: Option<TreeHandlerPair>,
 
@@ -78,7 +78,7 @@ struct Parser {
     }
 }
 
-fn Parser(encoding: &str, fix_encoding: bool) -> Parser unsafe {
+pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser unsafe {
     let hubbub_parser = null();
     let hubbub_error = do str::as_c_str(encoding) |encoding_c| {
         ll::parser::hubbub_parser_create(transmute(copy encoding_c), fix_encoding, allocator,
@@ -171,21 +171,21 @@ impl Parser {
     }
 }
 
-mod tree_callbacks {
+pub mod tree_callbacks {
 
     // Data conversions
 
-    fn from_hubbub_node(node: *c_void) -> Node unsafe {
+    pub fn from_hubbub_node(node: *c_void) -> Node unsafe {
         return transmute(copy node);
     }
 
-    fn from_hubbub_string(string: &a/ll::String) -> &a/str unsafe {
+    pub fn from_hubbub_string(string: &a/ll::String) -> &a/str unsafe {
         do str::raw::buf_as_slice((*string).ptr, (*string).len as uint) |s| {
             cast::transmute(copy s)
         }
     }
 
-    fn from_hubbub_ns(ns: ll::NS) -> Ns {
+    pub fn from_hubbub_ns(ns: ll::NS) -> Ns {
         match ns {
             0 => NullNs,
             1 => HtmlNs,
@@ -198,7 +198,7 @@ mod tree_callbacks {
         }
     }
 
-    fn from_hubbub_quirks_mode(mode: ll::QuirksMode) -> QuirksMode {
+    pub fn from_hubbub_quirks_mode(mode: ll::QuirksMode) -> QuirksMode {
         match mode {
             0 => NoQuirks,
             1 => LimitedQuirks,
@@ -207,19 +207,20 @@ mod tree_callbacks {
         }
     }
 
-    fn from_hubbub_attributes(attributes: *ll::Attribute, n_attributes: u32)
-                           -> ~[Attribute] unsafe {
-        do vec::from_fn(n_attributes as uint) |i| {
-            let attribute = offset(attributes, i);
-            Attribute {
-                ns: from_hubbub_ns((*attribute).ns),
-                name: from_hubbub_string(&(*attribute).name),
-                value: from_hubbub_string(&(*attribute).value)
+    pub fn from_hubbub_attributes(attributes: *ll::Attribute, n_attributes: u32) -> ~[Attribute] {
+        unsafe {
+            do vec::from_fn(n_attributes as uint) |i| {
+                let attribute = offset(attributes, i);
+                Attribute {
+                    ns: from_hubbub_ns((*attribute).ns),
+                    name: from_hubbub_string(&(*attribute).name),
+                    value: from_hubbub_string(&(*attribute).value)
+                }
             }
         }
     }
 
-    fn from_hubbub_tag(tag: &a/ll::Tag) -> Tag/&a unsafe {
+    pub fn from_hubbub_tag(tag: &a/ll::Tag) -> Tag/&a unsafe {
         Tag {
             ns: from_hubbub_ns((*tag).ns),
             name: from_hubbub_string(&(*tag).name),
@@ -228,7 +229,7 @@ mod tree_callbacks {
         }
     }
 
-    fn from_hubbub_doctype(doctype: &a/ll::Doctype) -> Doctype/&a unsafe {
+    pub fn from_hubbub_doctype(doctype: &a/ll::Doctype) -> Doctype/&a unsafe {
         Doctype {
             name: from_hubbub_string(&doctype.name),
             public_id:
@@ -247,13 +248,13 @@ mod tree_callbacks {
         }
     }
 
-    fn to_hubbub_node(node: Node) -> *c_void unsafe {
+    pub fn to_hubbub_node(node: Node) -> *c_void unsafe {
         return transmute(copy node);
     }
 
     // Callbacks
 
-    extern fn create_comment(ctx: *c_void, data: *ll::String, result: *mut *c_void)
+    pub extern fn create_comment(ctx: *c_void, data: *ll::String, result: *mut *c_void)
                           -> ll::Error unsafe {
         debug!("ll create comment");
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -263,7 +264,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn create_doctype(ctx: *c_void, doctype: *ll::Doctype, result: *mut *c_void)
+    pub extern fn create_doctype(ctx: *c_void, doctype: *ll::Doctype, result: *mut *c_void)
                           -> ll::Error unsafe {
         debug!("ll create doctype");
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -273,7 +274,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn create_element(ctx: *c_void, tag: *ll::Tag, result: *mut *c_void)
+    pub extern fn create_element(ctx: *c_void, tag: *ll::Tag, result: *mut *c_void)
                           -> ll::Error unsafe {
         debug!("ll create element");
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -283,7 +284,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn create_text(ctx: *c_void, data: *ll::String, result: *mut *c_void)
+    pub extern fn create_text(ctx: *c_void, data: *ll::String, result: *mut *c_void)
                        -> ll::Error unsafe {
         debug!("ll create text");
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -293,7 +294,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn ref_node(ctx: *c_void, node: *c_void) -> ll::Error unsafe {
+    pub extern fn ref_node(ctx: *c_void, node: *c_void) -> ll::Error unsafe {
         debug!("ll ref node");
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
         let self = self_opt.get();
@@ -301,7 +302,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn unref_node(ctx: *c_void, node: *c_void) -> ll::Error unsafe {
+    pub extern fn unref_node(ctx: *c_void, node: *c_void) -> ll::Error unsafe {
         debug!("ll unref node");
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
         let self = self_opt.get();
@@ -309,7 +310,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn append_child(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
+    pub extern fn append_child(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
                         -> ll::Error unsafe {
         debug!("ll append child");
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -319,8 +320,8 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn insert_before(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
-                        -> ll::Error unsafe {
+    pub extern fn insert_before(ctx: *c_void, parent: *c_void, child: *c_void,
+                                result: *mut *c_void) -> ll::Error unsafe {
         debug!("ll insert before");
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
         let self = self_opt.get();
@@ -329,7 +330,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn remove_child(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
+    pub extern fn remove_child(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
                         -> ll::Error unsafe {
         debug!("ll remove child");
 
@@ -340,7 +341,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn clone_node(ctx: *c_void, node: *c_void, deep: bool, result: *mut *c_void)
+    pub extern fn clone_node(ctx: *c_void, node: *c_void, deep: bool, result: *mut *c_void)
                       -> ll::Error unsafe {
         debug!("ll clone node");
 
@@ -350,7 +351,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn reparent_children(ctx: *c_void, node: *c_void, new_parent: *c_void)
+    pub extern fn reparent_children(ctx: *c_void, node: *c_void, new_parent: *c_void)
                              -> ll::Error unsafe {
         debug!("ll reparent children");
 
@@ -360,7 +361,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn get_parent(ctx: *c_void, node: *c_void, element_only: bool, result: *mut *c_void)
+    pub extern fn get_parent(ctx: *c_void, node: *c_void, element_only: bool, result: *mut *c_void)
                       -> ll::Error unsafe {
         debug!("ll get parent");
 
@@ -371,7 +372,8 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn has_children(ctx: *c_void, node: *c_void, result: *mut bool) -> ll::Error unsafe {
+    pub extern fn has_children(ctx: *c_void, node: *c_void, result: *mut bool)
+            -> ll::Error unsafe {
         debug!("ll has children");
 
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -380,7 +382,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn form_associate(ctx: *c_void, form: *c_void, node: *c_void) -> ll::Error unsafe {
+    pub extern fn form_associate(ctx: *c_void, form: *c_void, node: *c_void) -> ll::Error unsafe {
         debug!("ll form associate");
 
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -389,11 +391,11 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn add_attributes(ctx: *c_void,
-                             node: *c_void,
-                             attributes: *ll::Attribute,
-                             n_attributes: u32)
-                          -> ll::Error unsafe {
+    pub extern fn add_attributes(ctx: *c_void,
+                                 node: *c_void,
+                                 attributes: *ll::Attribute,
+                                 n_attributes: u32)
+                              -> ll::Error unsafe {
         debug!("ll add attributes");
 
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -403,7 +405,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn set_quirks_mode(ctx: *c_void, mode: ll::QuirksMode) -> ll::Error unsafe {
+    pub extern fn set_quirks_mode(ctx: *c_void, mode: ll::QuirksMode) -> ll::Error unsafe {
         debug!("ll set quirks mode");
 
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -412,7 +414,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn encoding_change(ctx: *c_void, encname: *c_char) -> ll::Error unsafe {
+    pub extern fn encoding_change(ctx: *c_void, encname: *c_char) -> ll::Error unsafe {
         debug!("ll encoding change");
 
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -421,7 +423,7 @@ mod tree_callbacks {
         return ll::OK;
     }
 
-    extern fn complete_script(ctx: *c_void, script: *c_void) -> ll::Error unsafe {
+    pub extern fn complete_script(ctx: *c_void, script: *c_void) -> ll::Error unsafe {
         debug!("ll complete script");
 
         let self_opt: &Option<TreeHandlerPair> = transmute(copy ctx);
@@ -431,7 +433,7 @@ mod tree_callbacks {
     }
 }
 
-extern fn allocator(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
+pub extern fn allocator(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
     return libc::realloc(ptr, len);
 }
 

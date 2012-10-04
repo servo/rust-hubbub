@@ -2,7 +2,7 @@
 
 use cast::transmute;
 use libc::{c_char, c_void, size_t};
-use ptr::{addr_of, null, offset, to_unsafe_ptr};
+use ptr::{null, offset, to_unsafe_ptr};
 
 pub enum QuirksMode {
     NoQuirks,
@@ -82,7 +82,7 @@ pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser unsafe {
     let hubbub_parser = null();
     let hubbub_error = do str::as_c_str(encoding) |encoding_c| {
         ll::parser::hubbub_parser_create(transmute(copy encoding_c), fix_encoding, allocator,
-                                         null(), addr_of(hubbub_parser))
+                                         null(), to_unsafe_ptr(&hubbub_parser))
     };
     assert hubbub_error == ll::OK;
     return Parser {
@@ -114,7 +114,7 @@ impl Parser {
                 set_quirks_mode: tree_callbacks::set_quirks_mode,
                 encoding_change: tree_callbacks::encoding_change,
                 complete_script: tree_callbacks::complete_script,
-                ctx: transmute(ptr::addr_of(self.tree_handler))
+                ctx: transmute(to_unsafe_ptr(&self.tree_handler))
             }
         });
 

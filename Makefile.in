@@ -19,8 +19,8 @@ librusthubbub.dummy: hubbub.rc $(RUST_SRC)
 	$(RUSTC) $(RUSTFLAGS) $< -o $@
 	touch $@
 
-check: rusthubbub-test
-	./rusthubbub-test
+.PHONY: check
+check:
 
 .PHONY: clean
 clean:

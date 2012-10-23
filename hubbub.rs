@@ -40,27 +40,27 @@ pub struct Tag {
 }
 
 // FIXME: This is terribly type-unsafe. But we don't have working generic extern functions yet...
-pub type Node = uint;
+pub type NodeDataPtr = uint;
 
 pub struct TreeHandler {
-    create_comment: @fn(data: &str) -> Node,
-    create_doctype: @fn(doctype: &Doctype) -> Node,
-    create_element: @fn(tag: &Tag) -> Node,
-    create_text: @fn(data: &str) -> Node,
-    ref_node: @fn(node: Node),
-    unref_node: @fn(node: Node),
-    append_child: @fn(parent: Node, child: Node) -> Node,
-    insert_before: @fn(parent: Node, child: Node) -> Node,
-    remove_child: @fn(parent: Node, child: Node) -> Node,
-    clone_node: @fn(node: Node, deep: bool) -> Node,
-    reparent_children: @fn(node: Node, new_parent: Node) -> Node,
-    get_parent: @fn(node: Node, element_only: bool) -> Node,
-    has_children: @fn(node: Node) -> bool,
-    form_associate: @fn(form: Node, node: Node),
-    add_attributes: @fn(node: Node, attribute: &[Attribute]),
+    create_comment: @fn(data: &str) -> NodeDataPtr,
+    create_doctype: @fn(doctype: &Doctype) -> NodeDataPtr,
+    create_element: @fn(tag: &Tag) -> NodeDataPtr,
+    create_text: @fn(data: &str) -> NodeDataPtr,
+    ref_node: @fn(node: NodeDataPtr),
+    unref_node: @fn(node: NodeDataPtr),
+    append_child: @fn(parent: NodeDataPtr, child: NodeDataPtr) -> NodeDataPtr,
+    insert_before: @fn(parent: NodeDataPtr, child: NodeDataPtr) -> NodeDataPtr,
+    remove_child: @fn(parent: NodeDataPtr, child: NodeDataPtr) -> NodeDataPtr,
+    clone_node: @fn(node: NodeDataPtr, deep: bool) -> NodeDataPtr,
+    reparent_children: @fn(node: NodeDataPtr, new_parent: NodeDataPtr) -> NodeDataPtr,
+    get_parent: @fn(node: NodeDataPtr, element_only: bool) -> NodeDataPtr,
+    has_children: @fn(node: NodeDataPtr) -> bool,
+    form_associate: @fn(form: NodeDataPtr, node: NodeDataPtr),
+    add_attributes: @fn(node: NodeDataPtr, attribute: &[Attribute]),
     set_quirks_mode: @fn(mode: QuirksMode),
     encoding_change: @fn(encname: &str),
-    complete_script: @fn(script: Node)
+    complete_script: @fn(script: NodeDataPtr)
 }
 
 pub struct TreeHandlerPair {
@@ -131,7 +131,7 @@ impl Parser {
         assert hubbub_error == ll::OK;
     }
 
-    fn set_document_node(&self, node: Node) unsafe {
+    fn set_document_node(&self, node: NodeDataPtr) unsafe {
         debug!("setting document node");
         let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                             ll::PARSER_DOCUMENT_NODE,
@@ -174,7 +174,7 @@ pub mod tree_callbacks {
 
     // Data conversions
 
-    pub fn from_hubbub_node(node: *c_void) -> Node unsafe {
+    pub fn from_hubbub_node(node: *c_void) -> NodeDataPtr unsafe {
         return cast::transmute(node);
     }
 
@@ -249,7 +249,7 @@ pub mod tree_callbacks {
         }
     }
 
-    pub fn to_hubbub_node(node: Node) -> *c_void unsafe {
+    pub fn to_hubbub_node(node: NodeDataPtr) -> *c_void unsafe {
         return cast::transmute(node);
     }
 

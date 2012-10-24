@@ -20,21 +20,21 @@ pub enum Ns {
 }
 
 pub struct Doctype {
-    name: &str,
-    public_id: Option<&str>,
-    system_id: Option<&str>,
+    name: ~str,
+    public_id: Option<~str>,
+    system_id: Option<~str>,
     force_quirks: bool
 }
 
 pub struct Attribute {
     ns: Ns,
-    name: &str,
-    value: &str,
+    name: ~str,
+    value: ~str,
 }
 
 pub struct Tag {
     ns: Ns,
-    name: &str,
+    name: ~str,
     attributes: ~[Attribute],
     self_closing: bool
 }
@@ -43,10 +43,10 @@ pub struct Tag {
 pub type NodeDataPtr = uint;
 
 pub struct TreeHandler {
-    create_comment: @fn(data: &str) -> NodeDataPtr,
-    create_doctype: @fn(doctype: &Doctype) -> NodeDataPtr,
-    create_element: @fn(tag: &Tag) -> NodeDataPtr,
-    create_text: @fn(data: &str) -> NodeDataPtr,
+    create_comment: @fn(data: ~str) -> NodeDataPtr,
+    create_doctype: @fn(doctype: ~Doctype) -> NodeDataPtr,
+    create_element: @fn(tag: ~Tag) -> NodeDataPtr,
+    create_text: @fn(data: ~str) -> NodeDataPtr,
     ref_node: @fn(node: NodeDataPtr),
     unref_node: @fn(node: NodeDataPtr),
     append_child: @fn(parent: NodeDataPtr, child: NodeDataPtr) -> NodeDataPtr,
@@ -57,9 +57,9 @@ pub struct TreeHandler {
     get_parent: @fn(node: NodeDataPtr, element_only: bool) -> NodeDataPtr,
     has_children: @fn(node: NodeDataPtr) -> bool,
     form_associate: @fn(form: NodeDataPtr, node: NodeDataPtr),
-    add_attributes: @fn(node: NodeDataPtr, attribute: &[Attribute]),
+    add_attributes: @fn(node: NodeDataPtr, attributes: ~[Attribute]),
     set_quirks_mode: @fn(mode: QuirksMode),
-    encoding_change: @fn(encname: &str),
+    encoding_change: @fn(encname: ~str),
     complete_script: @fn(script: NodeDataPtr)
 }
 
@@ -79,8 +79,8 @@ pub struct Parser {
 
 pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser unsafe {
     let hubbub_parser = null();
-    let hubbub_error = do str::as_c_str(encoding) |encoding_c| {
-        ll::parser::hubbub_parser_create(cast::transmute(copy encoding_c), fix_encoding, allocator,
+    let hubbub_error = do str::as_c_str(encoding) |encoding_c: *libc::c_char| {
+        ll::parser::hubbub_parser_create(cast::transmute(encoding_c), fix_encoding, allocator,
                                          null(), to_unsafe_ptr(&hubbub_parser))
     };
     assert hubbub_error == ll::OK;
@@ -178,11 +178,11 @@ pub mod tree_callbacks {
         return cast::transmute(node);
     }
 
-    pub fn from_hubbub_string(string: &a/ll::String) -> &a/str unsafe {
+    pub fn from_hubbub_string(string: &ll::String) -> ~str unsafe {
         debug!("from_hubbub_string: %u", (*string).len as uint);
-        do str::raw::buf_as_slice((*string).ptr, (*string).len as uint) |s| {
-            cast::transmute(s)
-        }
+        let s = str::raw::from_buf_len((*string).ptr, (*string).len as uint);
+        debug!("from_hubbub_string: %s", s);
+        move s
     }
 
     pub fn from_hubbub_ns(ns: ll::NS) -> Ns {
@@ -221,8 +221,8 @@ pub mod tree_callbacks {
         }
     }
 
-    pub fn from_hubbub_tag(tag: &a/ll::Tag) -> Tag/&a unsafe {
-        Tag {
+    pub fn from_hubbub_tag(tag: &ll::Tag) -> ~Tag unsafe {
+        ~Tag {
             ns: from_hubbub_ns((*tag).ns),
             name: from_hubbub_string(&(*tag).name),
             attributes: from_hubbub_attributes((*tag).attributes, (*tag).n_attributes),
@@ -230,8 +230,8 @@ pub mod tree_callbacks {
         }
     }
 
-    pub fn from_hubbub_doctype(doctype: &a/ll::Doctype) -> Doctype/&a unsafe {
-        Doctype {
+    pub fn from_hubbub_doctype(doctype: &ll::Doctype) -> ~Doctype unsafe {
+        ~Doctype {
             name: from_hubbub_string(&doctype.name),
             public_id:
                 if doctype.public_missing {
@@ -271,7 +271,7 @@ pub mod tree_callbacks {
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
         let doctype: &ll::Doctype = cast::transmute(doctype);
-        *result = to_hubbub_node(self.tree_handler.create_doctype(&from_hubbub_doctype(doctype)));
+        *result = to_hubbub_node(self.tree_handler.create_doctype(from_hubbub_doctype(doctype)));
         return ll::OK;
     }
 
@@ -281,7 +281,7 @@ pub mod tree_callbacks {
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
         let tag: &ll::Tag = cast::transmute(tag);
-        *result = to_hubbub_node(self.tree_handler.create_element(&from_hubbub_tag(tag)));
+        *result = to_hubbub_node(self.tree_handler.create_element(from_hubbub_tag(tag)));
         return ll::OK;
     }
 

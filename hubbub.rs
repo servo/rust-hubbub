@@ -261,7 +261,7 @@ pub mod tree_callbacks {
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
         let data: &ll::String = cast::transmute(data);
-        *result = to_hubbub_node(self.tree_handler.create_comment(from_hubbub_string(data)));
+        *result = to_hubbub_node((self.tree_handler.create_comment)(from_hubbub_string(data)));
         return ll::OK;
     }
 
@@ -271,7 +271,7 @@ pub mod tree_callbacks {
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
         let doctype: &ll::Doctype = cast::transmute(doctype);
-        *result = to_hubbub_node(self.tree_handler.create_doctype(from_hubbub_doctype(doctype)));
+        *result = to_hubbub_node((self.tree_handler.create_doctype)(from_hubbub_doctype(doctype)));
         return ll::OK;
     }
 
@@ -281,7 +281,7 @@ pub mod tree_callbacks {
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
         let tag: &ll::Tag = cast::transmute(tag);
-        *result = to_hubbub_node(self.tree_handler.create_element(from_hubbub_tag(tag)));
+        *result = to_hubbub_node((self.tree_handler.create_element)(from_hubbub_tag(tag)));
         return ll::OK;
     }
 
@@ -291,7 +291,7 @@ pub mod tree_callbacks {
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
         let data: &ll::String = cast::transmute(data);
-        *result = to_hubbub_node(self.tree_handler.create_text(from_hubbub_string(data)));
+        *result = to_hubbub_node((self.tree_handler.create_text)(from_hubbub_string(data)));
         return ll::OK;
     }
 
@@ -299,7 +299,7 @@ pub mod tree_callbacks {
         debug!("ll ref node");
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        self.tree_handler.ref_node(from_hubbub_node(node));
+        (self.tree_handler.ref_node)(from_hubbub_node(node));
         return ll::OK;
     }
 
@@ -307,7 +307,7 @@ pub mod tree_callbacks {
         debug!("ll unref node");
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        self.tree_handler.unref_node(from_hubbub_node(node));
+        (self.tree_handler.unref_node)(from_hubbub_node(node));
         return ll::OK;
     }
 
@@ -316,8 +316,8 @@ pub mod tree_callbacks {
         debug!("ll append child");
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        *result = to_hubbub_node(self.tree_handler.append_child(from_hubbub_node(parent),
-                                                                from_hubbub_node(child)));
+        *result = to_hubbub_node((self.tree_handler.append_child)(from_hubbub_node(parent),
+                                                                  from_hubbub_node(child)));
         return ll::OK;
     }
 
@@ -326,8 +326,8 @@ pub mod tree_callbacks {
         debug!("ll insert before");
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        *result = to_hubbub_node(self.tree_handler.insert_before(from_hubbub_node(parent),
-                                                                 from_hubbub_node(child)));
+        *result = to_hubbub_node((self.tree_handler.insert_before)(from_hubbub_node(parent),
+                                                                   from_hubbub_node(child)));
         return ll::OK;
     }
 
@@ -337,8 +337,8 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        *result = to_hubbub_node(self.tree_handler.remove_child(from_hubbub_node(parent),
-                                                                from_hubbub_node(child)));
+        *result = to_hubbub_node((self.tree_handler.remove_child)(from_hubbub_node(parent),
+                                                                  from_hubbub_node(child)));
         return ll::OK;
     }
 
@@ -348,7 +348,7 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        *result = to_hubbub_node(self.tree_handler.clone_node(from_hubbub_node(node), deep));
+        *result = to_hubbub_node((self.tree_handler.clone_node)(from_hubbub_node(node), deep));
         return ll::OK;
     }
 
@@ -358,7 +358,8 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        self.tree_handler.reparent_children(from_hubbub_node(node), from_hubbub_node(new_parent));
+        (self.tree_handler.reparent_children)(from_hubbub_node(node),
+                                              from_hubbub_node(new_parent));
         return ll::OK;
     }
 
@@ -368,8 +369,8 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        *result = to_hubbub_node(self.tree_handler.get_parent(from_hubbub_node(node),
-                                                              element_only));
+        *result = to_hubbub_node((self.tree_handler.get_parent)(from_hubbub_node(node),
+                                                                element_only));
         return ll::OK;
     }
 
@@ -379,7 +380,7 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        *result = self.tree_handler.has_children(from_hubbub_node(node));
+        *result = (self.tree_handler.has_children)(from_hubbub_node(node));
         return ll::OK;
     }
 
@@ -388,7 +389,7 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        self.tree_handler.form_associate(from_hubbub_node(form), from_hubbub_node(node));
+        (self.tree_handler.form_associate)(from_hubbub_node(form), from_hubbub_node(node));
         return ll::OK;
     }
 
@@ -401,8 +402,8 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        self.tree_handler.add_attributes(from_hubbub_node(node),
-                                         from_hubbub_attributes(attributes, n_attributes));
+        (self.tree_handler.add_attributes)(from_hubbub_node(node),
+                                           from_hubbub_attributes(attributes, n_attributes));
         return ll::OK;
     }
 
@@ -411,7 +412,7 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        self.tree_handler.set_quirks_mode(from_hubbub_quirks_mode(mode));
+        (self.tree_handler.set_quirks_mode)(from_hubbub_quirks_mode(mode));
         return ll::OK;
     }
 
@@ -420,7 +421,7 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        self.tree_handler.encoding_change(str::raw::from_c_str(encname));
+        (self.tree_handler.encoding_change)(str::raw::from_c_str(encname));
         return ll::OK;
     }
 
@@ -429,7 +430,7 @@ pub mod tree_callbacks {
 
         let self_opt: &Option<TreeHandlerPair> = cast::transmute(ctx);
         let self = self_opt.get();
-        self.tree_handler.complete_script(from_hubbub_node(script));
+        (self.tree_handler.complete_script)(from_hubbub_node(script));
         return ll::OK;
     }
 }

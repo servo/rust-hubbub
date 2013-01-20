@@ -2,6 +2,7 @@
 
 use libc::{c_char, c_void, size_t};
 use ptr::{null, offset, to_unsafe_ptr};
+use ll;
 
 pub enum QuirksMode {
     NoQuirks,
@@ -171,6 +172,13 @@ impl Parser {
 }
 
 pub mod tree_callbacks {
+
+    use libc::{c_void, c_char};
+    use ptr::offset;
+    use super::{NodeDataPtr, Ns, NullNs, HtmlNs, MathMlNs, SvgNs, XLinkNs, XmlNs, XmlNsNs};
+    use super::{QuirksMode, NoQuirks, LimitedQuirks, FullQuirks};
+    use super::{Attribute, Tag, Doctype, TreeHandlerPair};
+    use ll;
 
     // Data conversions
 
@@ -436,6 +444,6 @@ pub mod tree_callbacks {
 }
 
 pub extern fn allocator(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
-    return libc::realloc(ptr, len);
+    return unsafe { libc::realloc(ptr, len) };
 }
 

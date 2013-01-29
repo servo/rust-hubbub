@@ -120,13 +120,8 @@ impl Parser {
             }
         });
 
-        let ptr: *ll::TreeHandler;
-        match self.tree_handler {
-            None =>
-                fail ~"not possible",
-            Some(/*bad*/copy tree_handler_pair) =>
-                ptr = to_unsafe_ptr(&tree_handler_pair.ll_tree_handler)
-        }
+        let ptr: *ll::TreeHandler =
+            to_unsafe_ptr(&self.tree_handler.get_ref().ll_tree_handler);
 
         unsafe {
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,

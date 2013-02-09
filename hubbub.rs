@@ -213,7 +213,7 @@ pub mod tree_callbacks {
             4 => XLinkNs,
             5 => XmlNs,
             6 => XmlNsNs,
-            _ => fail ~"unknown namespace"
+            _ => fail!(~"unknown namespace")
         }
     }
 
@@ -222,7 +222,7 @@ pub mod tree_callbacks {
             0 => NoQuirks,
             1 => LimitedQuirks,
             2 => FullQuirks,
-            _ => fail ~"unknown quirks mode"
+            _ => fail!(~"unknown quirks mode")
         }
     }
 

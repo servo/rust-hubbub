@@ -200,7 +200,7 @@ pub mod tree_callbacks {
             debug!("from_hubbub_string: %u", (*string).len as uint);
             let s = str::raw::from_buf_len((*string).ptr, (*string).len as uint);
             debug!("from_hubbub_string: %s", s);
-            move s
+            s
         }
     }
 

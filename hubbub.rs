@@ -1,7 +1,7 @@
 // High-level bindings to the Hubbub HTML5 parser.
 
-use libc::{c_char, c_void, size_t};
-use ptr::{null, offset, to_unsafe_ptr};
+use core::libc::{c_char, c_void, size_t};
+use core::ptr::{null, offset, to_unsafe_ptr};
 use ll;
 
 pub enum QuirksMode {
@@ -71,7 +71,7 @@ pub struct TreeHandlerPair {
 
 pub struct Parser {
     hubbub_parser: *ll::Parser,
-    mut tree_handler: Option<TreeHandlerPair>,
+    tree_handler: Option<TreeHandlerPair>,
 
     drop {
         unsafe { ll::parser::hubbub_parser_destroy(self.hubbub_parser) };
@@ -93,8 +93,8 @@ pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
     };
 }
 
-impl Parser {
-    fn set_tree_handler(&self, tree_handler: @TreeHandler) {
+pub impl Parser {
+    fn set_tree_handler(&mut self, tree_handler: @TreeHandler) {
         self.tree_handler = Some(TreeHandlerPair {
             tree_handler: tree_handler,
             ll_tree_handler: ll::TreeHandler {
@@ -182,8 +182,8 @@ impl Parser {
 
 pub mod tree_callbacks {
 
-    use libc::{c_void, c_char};
-    use ptr::offset;
+    use core::libc::{c_void, c_char};
+    use core::ptr::offset;
     use super::{NodeDataPtr, Ns, NullNs, HtmlNs, MathMlNs, SvgNs, XLinkNs, XmlNs, XmlNsNs};
     use super::{QuirksMode, NoQuirks, LimitedQuirks, FullQuirks};
     use super::{Attribute, Tag, Doctype, TreeHandlerPair};

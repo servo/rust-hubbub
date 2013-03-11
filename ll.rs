@@ -1,4 +1,4 @@
-use libc::{c_char, c_int, c_void, size_t};
+use core::libc::{c_char, c_int, c_void, size_t};
 
 // errors.h
 

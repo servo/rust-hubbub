@@ -72,8 +72,10 @@ pub struct TreeHandlerPair {
 pub struct Parser {
     hubbub_parser: *ll::Parser,
     tree_handler: Option<TreeHandlerPair>,
+}
 
-    drop {
+impl Drop for Parser {
+    fn finalize(&self) {
         unsafe { ll::parser::hubbub_parser_destroy(self.hubbub_parser) };
     }
 }
@@ -86,7 +88,7 @@ pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
                                              null(), to_unsafe_ptr(&hubbub_parser))
         }
     };
-    assert hubbub_error == ll::OK;
+    fail_unless!(hubbub_error == ll::OK);
     return Parser {
         hubbub_parser: hubbub_parser,
         tree_handler: None
@@ -127,7 +129,7 @@ pub impl Parser {
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                                 ll::PARSER_TREE_HANDLER,
                                                                 cast::transmute(&ptr));
-            assert hubbub_error == ll::OK;
+            fail_unless!(hubbub_error == ll::OK);
         }
     }
 
@@ -137,7 +139,7 @@ pub impl Parser {
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                                 ll::PARSER_DOCUMENT_NODE,
                                                                 cast::transmute(&node));
-            assert hubbub_error == ll::OK;
+            fail_unless!(hubbub_error == ll::OK);
         }
     }
 
@@ -147,7 +149,7 @@ pub impl Parser {
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                                 ll::PARSER_ENABLE_SCRIPTING,
                                                                 cast::transmute(&enable));
-            assert hubbub_error == ll::OK;
+            fail_unless!(hubbub_error == ll::OK);
         }
     }
 
@@ -157,7 +159,7 @@ pub impl Parser {
             let ptr = vec::raw::to_ptr(data);
             let hubbub_error = ll::parser::hubbub_parser_parse_chunk(self.hubbub_parser, ptr,
                                                                      data.len() as size_t);
-            assert hubbub_error == ll::OK;
+            fail_unless!(hubbub_error == ll::OK);
         }
     }
 
@@ -167,7 +169,7 @@ pub impl Parser {
             let ptr = vec::raw::to_ptr(data);
             let hubbub_error = ll::parser::hubbub_parser_insert_chunk(self.hubbub_parser, ptr,
                                                                       data.len() as size_t);
-            assert hubbub_error == ll::OK;
+            fail_unless!(hubbub_error == ll::OK);
         }
     }
 
@@ -175,7 +177,7 @@ pub impl Parser {
         unsafe {
             debug!("completing");
             let hubbub_error = ll::parser::hubbub_parser_completed(self.hubbub_parser);
-            assert hubbub_error == ll::OK;
+            fail_unless!(hubbub_error == ll::OK);
         }
     }
 }

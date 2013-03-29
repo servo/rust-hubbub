@@ -3,17 +3,17 @@ use core::libc::{c_char, c_int, c_void, size_t};
 // errors.h
 
 pub type Error = c_int;
-pub const OK: c_int = 0;
-pub const REPROCESS: c_int = 1;
-pub const ENCODINGCHANGE: c_int = 2;
-pub const PAUSED: c_int = 3;
-pub const NOMEM: c_int = 5;
-pub const BADPARM: c_int = 6;
-pub const INVALID: c_int = 7;
-pub const FILENOTFOUND: c_int = 8;
-pub const NEEDDATA: c_int = 9;
-pub const BADENCODING: c_int = 10;
-pub const UNKNOWN: c_int = 11;
+pub static OK: c_int = 0;
+pub static REPROCESS: c_int = 1;
+pub static ENCODINGCHANGE: c_int = 2;
+pub static PAUSED: c_int = 3;
+pub static NOMEM: c_int = 5;
+pub static BADPARM: c_int = 6;
+pub static INVALID: c_int = 7;
+pub static FILENOTFOUND: c_int = 8;
+pub static NEEDDATA: c_int = 9;
+pub static BADENCODING: c_int = 10;
+pub static UNKNOWN: c_int = 11;
 
 #[cfg(target_os = "macos")]
 #[nolink]
@@ -35,13 +35,13 @@ pub extern mod error {
 pub type Parser = c_void;
 
 pub type ParserOptType = c_int;
-pub const PARSER_TOKEN_HANDLER: c_int = 0;
-pub const PARSER_ERROR_HANDLER: c_int = 1;
-pub const PARSER_CONTENT_MODEL: c_int = 2;
-pub const PARSER_TREE_HANDLER: c_int = 3;
-pub const PARSER_DOCUMENT_NODE: c_int = 4;
-pub const PARSER_ENABLE_SCRIPTING: c_int = 5;
-pub const PARSER_PAUSE: c_int = 6;
+pub static PARSER_TOKEN_HANDLER: c_int = 0;
+pub static PARSER_ERROR_HANDLER: c_int = 1;
+pub static PARSER_CONTENT_MODEL: c_int = 2;
+pub static PARSER_TREE_HANDLER: c_int = 3;
+pub static PARSER_DOCUMENT_NODE: c_int = 4;
+pub static PARSER_ENABLE_SCRIPTING: c_int = 5;
+pub static PARSER_PAUSE: c_int = 6;
 
 pub struct ParserOptParamsTokenHandler {
     handler: *u8,
@@ -104,39 +104,39 @@ pub struct TreeHandler {
 // A client-dictated charset will override all others.
 // A document-specified charset will override autodetection or the default.
 pub type CharsetSource = c_int;
-pub const CHARSET_UNKNOWN: c_int = 0;
-pub const CHARSET_TENTATIVE: c_int = 1;
-pub const CHARSET_CONFIDENT: c_int = 2;
+pub static CHARSET_UNKNOWN: c_int = 0;
+pub static CHARSET_TENTATIVE: c_int = 1;
+pub static CHARSET_CONFIDENT: c_int = 2;
 
 // Content model flag
 pub type ContentModel = c_int;
-pub const CONTENT_MODEL_PCDATA: c_int = 0;
-pub const CONTENT_MODEL_RCDATA: c_int = 1;
-pub const CONTENT_MODEL_CDATA: c_int = 2;
-pub const CONTENT_MODEL_PLAINTEXT: c_int = 3;
+pub static CONTENT_MODEL_PCDATA: c_int = 0;
+pub static CONTENT_MODEL_RCDATA: c_int = 1;
+pub static CONTENT_MODEL_CDATA: c_int = 2;
+pub static CONTENT_MODEL_PLAINTEXT: c_int = 3;
 
 // Quirks mode flag
 pub type QuirksMode = c_int;
-pub const QUIRKS_MODE_NONE: c_int = 0;
-pub const QUIRKS_MODE_LIMITED: c_int = 1;
-pub const QUIRKS_MODE_FULL: c_int = 2;
+pub static QUIRKS_MODE_NONE: c_int = 0;
+pub static QUIRKS_MODE_LIMITED: c_int = 1;
+pub static QUIRKS_MODE_FULL: c_int = 2;
 
 pub type TokenType = c_int;
-pub const TOKEN_DOCTYPE: c_int = 0;
-pub const TOKEN_START_TAG: c_int = 1;
-pub const TOKEN_END_TAG: c_int = 2;
-pub const TOKEN_COMMENT: c_int = 3;
-pub const TOKEN_CHARACTER: c_int = 4;
-pub const TOKEN_EOF: c_int = 5;
+pub static TOKEN_DOCTYPE: c_int = 0;
+pub static TOKEN_START_TAG: c_int = 1;
+pub static TOKEN_END_TAG: c_int = 2;
+pub static TOKEN_COMMENT: c_int = 3;
+pub static TOKEN_CHARACTER: c_int = 4;
+pub static TOKEN_EOF: c_int = 5;
 
 pub type NS = c_int;
-pub const NS_NULL: c_int = 0;
-pub const NS_HTML: c_int = 1;
-pub const NS_MATHML: c_int = 2;
-pub const NS_SVG: c_int = 3;
-pub const NS_XLINK: c_int = 4;
-pub const NS_XML: c_int = 5;
-pub const NS_XMLNS: c_int = 6;
+pub static NS_NULL: c_int = 0;
+pub static NS_HTML: c_int = 1;
+pub static NS_MATHML: c_int = 2;
+pub static NS_SVG: c_int = 3;
+pub static NS_XLINK: c_int = 4;
+pub static NS_XML: c_int = 5;
+pub static NS_XMLNS: c_int = 6;
 
 pub struct String {
     ptr: *u8,

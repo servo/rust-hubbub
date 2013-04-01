@@ -1,7 +1,7 @@
 // High-level bindings to the Hubbub HTML5 parser.
 
-use core::libc::{c_char, c_void, size_t};
-use core::ptr::{null, offset, to_unsafe_ptr};
+use core::libc::{c_void, size_t};
+use core::ptr::{null, to_unsafe_ptr};
 use ll;
 
 pub enum QuirksMode {

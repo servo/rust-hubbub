@@ -26,12 +26,12 @@ pub static UNKNOWN: c_int = 11;
 
 #[cfg(target_os = "macos")]
 #[nolink]
-#[link_args="-L../libhubbub -lhubbub -L../libparserutils -lparserutils -liconv"]
+#[link_args="-L../../hubbub/libhubbub -lhubbub -L../../libparserutils/libparserutils -lparserutils -liconv"]
 pub extern mod linking { }
 
 #[cfg(target_os = "linux")]
 #[nolink]
-#[link_args="-L../libhubbub -lhubbub -L../libparserutils -lparserutils"]
+#[link_args="-L../../hubbub/libhubbub -lhubbub -L../../libparserutils/libparserutils -lparserutils"]
 pub extern mod linking { }
 
 #[nolink]

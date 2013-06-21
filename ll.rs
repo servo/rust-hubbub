@@ -7,7 +7,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use core::libc::{c_char, c_int, c_void, size_t};
+use std::libc::{c_char, c_int, c_void, size_t};
 
 // errors.h
 
@@ -27,15 +27,15 @@ pub static UNKNOWN: c_int = 11;
 #[cfg(target_os = "macos")]
 #[nolink]
 #[link_args="-L../../hubbub/libhubbub -lhubbub -L../../libparserutils/libparserutils -lparserutils -liconv"]
-pub extern mod linking { }
+extern { }
 
 #[cfg(target_os = "linux")]
 #[nolink]
 #[link_args="-L../../hubbub/libhubbub -lhubbub -L../../libparserutils/libparserutils -lparserutils"]
-pub extern mod linking { }
+extern { }
 
 #[nolink]
-pub extern mod error {
+extern {
     pub fn hubbub_error_to_string(error: Error) -> *u8;
 }
 
@@ -66,21 +66,26 @@ pub struct ParserOptParamsContentModel {
     content_model: ContentModel
 }
 
-#[nolink]
-pub extern mod parser {
-    pub fn hubbub_parser_create(enc: *u8,
-                                fix_enc: bool,
-                                alloc: *u8,
-                                pw: *c_void,
-                                parser: **Parser)
-                             -> Error;
-    pub fn hubbub_parser_destroy(parser: *Parser) -> Error;
-    pub fn hubbub_parser_setopt(parser: *Parser, opt_type: ParserOptType, params: *c_void)
-                             -> Error;
-    pub fn hubbub_parser_parse_chunk(parser: *Parser, data: *u8, len: size_t) -> Error;
-    pub fn hubbub_parser_insert_chunk(parser: *Parser, data: *u8, len: size_t) -> Error;
-    pub fn hubbub_parser_completed(parser: *Parser) -> Error;
-    pub fn hubbub_parser_read_charset(parser: *Parser, source: *CharsetSource) -> *c_char;
+pub mod parser {
+    use std::libc::{c_void, size_t, c_char};
+    use super::{Parser, Error, ParserOptType, CharsetSource};
+
+    #[nolink]
+    extern {
+        pub fn hubbub_parser_create(enc: *u8,
+                                    fix_enc: bool,
+                                    alloc: *u8,
+                                    pw: *c_void,
+                                    parser: **Parser)
+            -> Error;
+        pub fn hubbub_parser_destroy(parser: *Parser) -> Error;
+        pub fn hubbub_parser_setopt(parser: *Parser, opt_type: ParserOptType, params: *c_void)
+            -> Error;
+        pub fn hubbub_parser_parse_chunk(parser: *Parser, data: *u8, len: size_t) -> Error;
+        pub fn hubbub_parser_insert_chunk(parser: *Parser, data: *u8, len: size_t) -> Error;
+        pub fn hubbub_parser_completed(parser: *Parser) -> Error;
+        pub fn hubbub_parser_read_charset(parser: *Parser, source: *CharsetSource) -> *c_char;
+    }
 }
 
 // tree.h

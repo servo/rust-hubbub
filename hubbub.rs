@@ -88,7 +88,7 @@ pub struct Parser {
 }
 
 impl Drop for Parser {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe { ll::parser::hubbub_parser_destroy(self.hubbub_parser) };
     }
 }
@@ -492,7 +492,7 @@ pub mod tree_callbacks {
     }
 }
 
-pub extern fn allocator(ptr: *c_void, len: size_t, _pw: *c_void) -> *c_void {
-    return unsafe { libc::realloc(ptr, len) };
+pub extern fn allocator(ptr: *mut c_void, len: size_t, _pw: *c_void) -> *mut c_void {
+    unsafe { libc::realloc(ptr, len) }
 }
 

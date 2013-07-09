@@ -5,7 +5,7 @@ CXX ?= g++
 CXXFLAGS ?=
 AR ?= ar
 RUSTC ?= rustc
-RUSTFLAGS ?=
+RUSTFLAGS += -L . -L ../libhubbub -L ../../libparserutils/libparserutils
 
 RUST_SRC=$(shell find $(VPATH)/. -type f -name '*.rs')
 

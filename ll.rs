@@ -51,6 +51,7 @@ pub static PARSER_TREE_HANDLER: c_int = 3;
 pub static PARSER_DOCUMENT_NODE: c_int = 4;
 pub static PARSER_ENABLE_SCRIPTING: c_int = 5;
 pub static PARSER_PAUSE: c_int = 6;
+pub static PARSER_ENABLE_STYLING: c_int = 7;
 
 pub struct ParserOptParamsTokenHandler {
     handler: *u8,
@@ -109,7 +110,8 @@ pub struct TreeHandler {
     set_quirks_mode: *u8,
     encoding_change: *u8,
     complete_script: *u8,
-    ctx: *c_void
+    complete_style: *u8,
+    ctx: *c_void,
 }
 
 // types.h

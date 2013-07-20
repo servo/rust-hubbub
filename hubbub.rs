@@ -74,7 +74,8 @@ pub struct TreeHandler {
     add_attributes: ~fn(node: NodeDataPtr, attributes: ~[Attribute]),
     set_quirks_mode: ~fn(mode: QuirksMode),
     encoding_change: ~fn(encname: ~str),
-    complete_script: ~fn(script: NodeDataPtr)
+    complete_script: ~fn(script: NodeDataPtr),
+    complete_style: ~fn(style: NodeDataPtr),
 }
 
 pub struct TreeHandlerPair {
@@ -131,7 +132,8 @@ impl Parser {
                 set_quirks_mode: tree_callbacks::set_quirks_mode,
                 encoding_change: tree_callbacks::encoding_change,
                 complete_script: tree_callbacks::complete_script,
-                ctx: unsafe { cast::transmute(to_unsafe_ptr(&self.tree_handler)) }
+                complete_style: tree_callbacks::complete_style,
+                ctx: unsafe { cast::transmute(to_unsafe_ptr(&self.tree_handler)) },
             }
         });
 
@@ -161,6 +163,16 @@ impl Parser {
             debug!("enabling scripting");
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                                 ll::PARSER_ENABLE_SCRIPTING,
+                                                                cast::transmute(&enable));
+            assert!(hubbub_error == ll::OK);
+        }
+    }
+
+    pub fn enable_styling(&self, enable: bool) {
+        unsafe {
+            debug!("enabling styling");
+            let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
+                                                                ll::PARSER_ENABLE_STYLING,
                                                                 cast::transmute(&enable));
             assert!(hubbub_error == ll::OK);
         }
@@ -488,6 +500,15 @@ pub mod tree_callbacks {
         let self_opt: &Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
         let this = self_opt.get_ref();
         (this.tree_handler.complete_script)(from_hubbub_node(script));
+        return ll::OK;
+    }
+
+    pub extern fn complete_style(ctx: *c_void, style: *c_void) -> ll::Error {
+        debug!("ll complete style");
+
+        let self_opt: &Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let this = self_opt.get_ref();
+        (this.tree_handler.complete_style)(from_hubbub_node(style));
         return ll::OK;
     }
 }

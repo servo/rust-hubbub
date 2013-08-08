@@ -30,6 +30,7 @@ pub static UNKNOWN: c_int = 11;
 extern { }
 
 #[cfg(target_os = "linux")]
+#[cfg(target_os = "android")]
 #[nolink]
 #[link_args="-lhubbub -lparserutils"]
 extern { }

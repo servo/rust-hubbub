@@ -13,7 +13,6 @@ use std::cast;
 use std::libc;
 use std::libc::{c_void, size_t};
 use std::ptr::{null, to_unsafe_ptr};
-use std::str;
 use std::vec;
 use ll;
 
@@ -96,7 +95,7 @@ impl Drop for Parser {
 
 pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
     let hubbub_parser = null();
-    let hubbub_error = do str::as_c_str(encoding) |encoding_c: *libc::c_char| {
+    let hubbub_error = do encoding.as_c_str |encoding_c: *libc::c_char| {
         unsafe {
             ll::parser::hubbub_parser_create(cast::transmute(encoding_c), fix_encoding, allocator,
                                              null(), to_unsafe_ptr(&hubbub_parser))
@@ -260,7 +259,7 @@ pub mod tree_callbacks {
         debug!("from_hubbub_attributes n=%u", n_attributes as uint);
         unsafe {
             do vec::from_fn(n_attributes as uint) |i| {
-                let attribute = offset(attributes, i);
+                let attribute = offset(attributes, i as int);
                 Attribute {
                     ns: from_hubbub_ns((*attribute).ns),
                     name: from_hubbub_string(&(*attribute).name),

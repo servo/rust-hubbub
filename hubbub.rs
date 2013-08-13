@@ -95,7 +95,7 @@ impl Drop for Parser {
 
 pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
     let hubbub_parser = null();
-    let hubbub_error = do encoding.as_c_str |encoding_c: *libc::c_char| {
+    let hubbub_error = do encoding.to_c_str().with_ref |encoding_c: *libc::c_char| {
         unsafe {
             ll::parser::hubbub_parser_create(cast::transmute(encoding_c), fix_encoding, allocator,
                                              null(), to_unsafe_ptr(&hubbub_parser))

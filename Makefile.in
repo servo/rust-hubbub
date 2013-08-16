@@ -16,7 +16,7 @@ all:	librusthubbub.dummy
 	$(CC) $< -o $@ -c $(CFLAGS)
 
 librusthubbub.dummy: hubbub.rc $(RUST_SRC)
-	$(RUSTC) $(RUSTFLAGS) $< -o $@
+	$(RUSTC) $(RUSTFLAGS) $< --out-dir .
 	touch $@
 
 .PHONY: check

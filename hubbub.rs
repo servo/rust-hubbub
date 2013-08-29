@@ -88,11 +88,13 @@ pub struct Parser {
 }
 
 impl Drop for Parser {
+	#[fixed_stack_segment]
     fn drop(&self) {
         unsafe { ll::parser::hubbub_parser_destroy(self.hubbub_parser) };
     }
 }
 
+#[fixed_stack_segment]
 pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
     let hubbub_parser = null();
     let hubbub_error = do encoding.to_c_str().with_ref |encoding_c: *libc::c_char| {
@@ -109,6 +111,7 @@ pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
 }
 
 impl Parser {
+	#[fixed_stack_segment]
     pub fn set_tree_handler(&mut self, tree_handler: ~TreeHandler) {
         self.tree_handler = Some(TreeHandlerPair {
             tree_handler: tree_handler,
@@ -147,6 +150,7 @@ impl Parser {
         }
     }
 
+	#[fixed_stack_segment]
     pub fn set_document_node(&self, node: NodeDataPtr) {
         unsafe {
             debug!("setting document node");
@@ -157,6 +161,7 @@ impl Parser {
         }
     }
 
+	#[fixed_stack_segment]
     pub fn enable_scripting(&self, enable: bool) {
         unsafe {
             debug!("enabling scripting");
@@ -167,6 +172,7 @@ impl Parser {
         }
     }
 
+	#[fixed_stack_segment]
     pub fn enable_styling(&self, enable: bool) {
         unsafe {
             debug!("enabling styling");
@@ -177,6 +183,7 @@ impl Parser {
         }
     }
 
+	#[fixed_stack_segment]
     pub fn parse_chunk(&self, data: &[u8]) {
         unsafe {
             debug!("parsing chunk");
@@ -187,6 +194,7 @@ impl Parser {
         }
     }
 
+	#[fixed_stack_segment]
     pub fn insert_chunk(&self, data: &[u8]) {
         unsafe {
             debug!("inserting chunk");
@@ -197,6 +205,7 @@ impl Parser {
         }
     }
 
+	#[fixed_stack_segment]
     pub fn completed(&self) {
         unsafe {
             debug!("completing");

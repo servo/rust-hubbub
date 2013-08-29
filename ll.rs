@@ -7,7 +7,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::libc::{c_int, c_void, size_t};
+use std::libc::{c_int, c_void, size_t, c_char};
 
 // errors.h
 
@@ -76,7 +76,7 @@ pub mod parser {
     extern {
         pub fn hubbub_parser_create(enc: *u8,
                                     fix_enc: bool,
-                                    alloc: *u8,
+                                    alloc: extern "C" fn(*mut c_void, size_t, *c_void) -> *mut c_void,
                                     pw: *c_void,
                                     parser: **Parser)
             -> Error;
@@ -93,25 +93,25 @@ pub mod parser {
 // tree.h
 
 pub struct TreeHandler {
-    create_comment: *u8,
-    create_doctype: *u8,
-    create_element: *u8,
-    create_text: *u8,
-    ref_node: *u8,
-    unref_node: *u8,
-    append_child: *u8,
-    insert_before: *u8,
-    remove_child: *u8,
-    clone_node: *u8,
-    reparent_children: *u8,
-    get_parent: *u8,
-    has_children: *u8,
-    form_associate: *u8,
-    add_attributes: *u8,
-    set_quirks_mode: *u8,
-    encoding_change: *u8,
-    complete_script: *u8,
-    complete_style: *u8,
+    create_comment: extern "C" fn(*c_void, *String, *mut *c_void) -> Error,
+    create_doctype: extern "C" fn(*c_void, *Doctype, *mut *c_void) -> Error,
+    create_element: extern "C" fn(*c_void, *Tag, *mut *c_void) -> Error,
+    create_text: extern "C" fn(*c_void, *String, *mut *c_void) -> Error,
+    ref_node: extern "C" fn(*c_void, *c_void) -> Error,
+    unref_node: extern "C" fn(*c_void, *c_void) -> Error,
+    append_child: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
+    insert_before: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
+    remove_child: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
+    clone_node: extern "C" fn(*c_void, *c_void, bool, *mut *c_void) -> Error,
+    reparent_children: extern "C" fn(*c_void, *c_void, *c_void) -> Error,
+    get_parent: extern "C" fn(*c_void, *c_void, bool, *mut *c_void) -> Error,
+    has_children: extern "C" fn(*c_void, *c_void, *mut bool) -> Error,
+    form_associate: extern "C" fn(*c_void, *c_void, *c_void) -> Error,
+    add_attributes: extern "C" fn(*c_void, *c_void, *Attribute, u32) -> Error,
+    set_quirks_mode: extern "C" fn(*c_void, QuirksMode) -> Error,
+    encoding_change: extern "C" fn(*c_void, *c_char) -> Error,
+    complete_script: extern "C" fn(*c_void, *c_void) -> Error,
+    complete_style: extern "C" fn(*c_void, *c_void) -> Error,
     ctx: *c_void,
 }
 

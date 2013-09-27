@@ -89,7 +89,7 @@ pub struct Parser {
 
 impl Drop for Parser {
 	#[fixed_stack_segment]
-    fn drop(&self) {
+    fn drop(&mut self) {
         unsafe { ll::parser::hubbub_parser_destroy(self.hubbub_parser) };
     }
 }

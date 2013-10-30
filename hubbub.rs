@@ -235,9 +235,9 @@ pub mod tree_callbacks {
 
     pub fn from_hubbub_string(string: &ll::String) -> ~str {
         unsafe {
-            debug!("from_hubbub_string: %u", (*string).len as uint);
+            debug!("from_hubbub_string: {:u}", (*string).len as uint);
             let s = str::raw::from_buf_len((*string).ptr, (*string).len as uint);
-            debug!("from_hubbub_string: %s", s);
+            debug!("from_hubbub_string: {:s}", s);
             s
         }
     }
@@ -265,7 +265,7 @@ pub mod tree_callbacks {
     }
 
     pub fn from_hubbub_attributes(attributes: *ll::Attribute, n_attributes: u32) -> ~[Attribute] {
-        debug!("from_hubbub_attributes n=%u", n_attributes as uint);
+        debug!("from_hubbub_attributes n={:u}", n_attributes as uint);
         unsafe {
             do vec::from_fn(n_attributes as uint) |i| {
                 let attribute = offset(attributes, i as int);

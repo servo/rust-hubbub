@@ -13,7 +13,6 @@ use std::cast;
 use std::libc;
 use std::libc::{c_void, size_t};
 use std::ptr::{null, to_unsafe_ptr};
-use std::vec;
 use ll;
 
 pub enum QuirksMode {
@@ -55,54 +54,53 @@ pub struct Tag {
 // FIXME: This is terribly type-unsafe. But we don't have working generic extern functions yet...
 pub type NodeDataPtr = uint;
 
-pub struct TreeHandler {
-    create_comment: ~fn(data: ~str) -> NodeDataPtr,
-    create_doctype: ~fn(doctype: ~Doctype) -> NodeDataPtr,
-    create_element: ~fn(tag: ~Tag) -> NodeDataPtr,
-    create_text: ~fn(data: ~str) -> NodeDataPtr,
-    ref_node: ~fn(node: NodeDataPtr),
-    unref_node: ~fn(node: NodeDataPtr),
-    append_child: ~fn(parent: NodeDataPtr, child: NodeDataPtr) -> NodeDataPtr,
-    insert_before: ~fn(parent: NodeDataPtr, child: NodeDataPtr) -> NodeDataPtr,
-    remove_child: ~fn(parent: NodeDataPtr, child: NodeDataPtr) -> NodeDataPtr,
-    clone_node: ~fn(node: NodeDataPtr, deep: bool) -> NodeDataPtr,
-    reparent_children: ~fn(node: NodeDataPtr, new_parent: NodeDataPtr) -> NodeDataPtr,
-    get_parent: ~fn(node: NodeDataPtr, element_only: bool) -> NodeDataPtr,
-    has_children: ~fn(node: NodeDataPtr) -> bool,
-    form_associate: ~fn(form: NodeDataPtr, node: NodeDataPtr),
-    add_attributes: ~fn(node: NodeDataPtr, attributes: ~[Attribute]),
-    set_quirks_mode: ~fn(mode: QuirksMode),
-    encoding_change: ~fn(encname: ~str),
-    complete_script: ~fn(script: NodeDataPtr),
-    complete_style: ~fn(style: NodeDataPtr),
+pub struct TreeHandler<'a> {
+    create_comment: 'a |data: ~str| -> NodeDataPtr,
+    create_doctype: 'a |doctype: ~Doctype| -> NodeDataPtr,
+    create_element: 'a |tag: ~Tag| -> NodeDataPtr,
+    create_text: 'a |data: ~str| -> NodeDataPtr,
+    ref_node: 'a |node: NodeDataPtr|,
+    unref_node: 'a |node: NodeDataPtr|,
+    append_child: 'a |parent: NodeDataPtr, child: NodeDataPtr| -> NodeDataPtr,
+    insert_before: 'a |parent: NodeDataPtr, child: NodeDataPtr| -> NodeDataPtr,
+    remove_child: 'a |parent: NodeDataPtr, child: NodeDataPtr| -> NodeDataPtr,
+    clone_node: 'a |node: NodeDataPtr, deep: bool| -> NodeDataPtr,
+    reparent_children: 'a |node: NodeDataPtr, new_parent: NodeDataPtr| -> NodeDataPtr,
+    get_parent: 'a |node: NodeDataPtr, element_only: bool| -> NodeDataPtr,
+    has_children: 'a |node: NodeDataPtr| -> bool,
+    form_associate: 'a |form: NodeDataPtr, node: NodeDataPtr|,
+    add_attributes: 'a |node: NodeDataPtr, attributes: ~[Attribute]|,
+    set_quirks_mode: 'a |mode: QuirksMode|,
+    encoding_change: 'a |encname: ~str|,
+    complete_script: 'a |script: NodeDataPtr|,
+    complete_style: 'a |style: NodeDataPtr|,
 }
 
-pub struct TreeHandlerPair {
-    tree_handler: ~TreeHandler,
+pub struct TreeHandlerPair<'a> {
+    tree_handler: &'a TreeHandler<'a>,
     ll_tree_handler: ll::TreeHandler
 }
 
-pub struct Parser {
+pub struct Parser<'a> {
     hubbub_parser: *ll::Parser,
-    tree_handler: Option<TreeHandlerPair>,
+    tree_handler: Option<TreeHandlerPair<'a>>,
 }
 
-impl Drop for Parser {
-	#[fixed_stack_segment]
+#[unsafe_destructor]
+impl<'a> Drop for Parser<'a> {
     fn drop(&mut self) {
         unsafe { ll::parser::hubbub_parser_destroy(self.hubbub_parser) };
     }
 }
 
-#[fixed_stack_segment]
 pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
     let hubbub_parser = null();
-    let hubbub_error = do encoding.to_c_str().with_ref |encoding_c: *libc::c_char| {
+    let hubbub_error = encoding.to_c_str().with_ref(|encoding_c: *libc::c_char| {
         unsafe {
             ll::parser::hubbub_parser_create(cast::transmute(encoding_c), fix_encoding, allocator,
                                              null(), to_unsafe_ptr(&hubbub_parser))
         }
-    };
+    });
     assert!(hubbub_error == ll::OK);
     return Parser {
         hubbub_parser: hubbub_parser,
@@ -110,9 +108,8 @@ pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
     };
 }
 
-impl Parser {
-	#[fixed_stack_segment]
-    pub fn set_tree_handler(&mut self, tree_handler: ~TreeHandler) {
+impl<'a> Parser<'a> {
+    pub fn set_tree_handler(&mut self, tree_handler: &'a TreeHandler) {
         self.tree_handler = Some(TreeHandlerPair {
             tree_handler: tree_handler,
             ll_tree_handler: ll::TreeHandler {
@@ -150,8 +147,7 @@ impl Parser {
         }
     }
 
-	#[fixed_stack_segment]
-    pub fn set_document_node(&self, node: NodeDataPtr) {
+    pub fn set_document_node(&mut self, node: NodeDataPtr) {
         unsafe {
             debug!("setting document node");
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
@@ -161,8 +157,7 @@ impl Parser {
         }
     }
 
-	#[fixed_stack_segment]
-    pub fn enable_scripting(&self, enable: bool) {
+    pub fn enable_scripting(&mut self, enable: bool) {
         unsafe {
             debug!("enabling scripting");
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
@@ -172,8 +167,7 @@ impl Parser {
         }
     }
 
-	#[fixed_stack_segment]
-    pub fn enable_styling(&self, enable: bool) {
+    pub fn enable_styling(&mut self, enable: bool) {
         unsafe {
             debug!("enabling styling");
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
@@ -183,29 +177,26 @@ impl Parser {
         }
     }
 
-	#[fixed_stack_segment]
-    pub fn parse_chunk(&self, data: &[u8]) {
+    pub fn parse_chunk(&mut self, data: &[u8]) {
         unsafe {
             debug!("parsing chunk");
-            let ptr = vec::raw::to_ptr(data);
+            let ptr = data.as_ptr();
             let hubbub_error = ll::parser::hubbub_parser_parse_chunk(self.hubbub_parser, ptr,
                                                                      data.len() as size_t);
             assert!(hubbub_error == ll::OK);
         }
     }
 
-	#[fixed_stack_segment]
-    pub fn insert_chunk(&self, data: &[u8]) {
+    pub fn insert_chunk(&mut self, data: &[u8]) {
         unsafe {
             debug!("inserting chunk");
-            let ptr = vec::raw::to_ptr(data);
+            let ptr = data.as_ptr();
             let hubbub_error = ll::parser::hubbub_parser_insert_chunk(self.hubbub_parser, ptr,
                                                                       data.len() as size_t);
             assert!(hubbub_error == ll::OK);
         }
     }
 
-	#[fixed_stack_segment]
     pub fn completed(&self) {
         unsafe {
             debug!("completing");
@@ -267,14 +258,14 @@ pub mod tree_callbacks {
     pub fn from_hubbub_attributes(attributes: *ll::Attribute, n_attributes: u32) -> ~[Attribute] {
         debug!("from_hubbub_attributes n={:u}", n_attributes as uint);
         unsafe {
-            do vec::from_fn(n_attributes as uint) |i| {
+            vec::from_fn(n_attributes as uint, |i| {
                 let attribute = offset(attributes, i as int);
                 Attribute {
                     ns: from_hubbub_ns((*attribute).ns),
                     name: from_hubbub_string(&(*attribute).name),
                     value: from_hubbub_string(&(*attribute).value)
                 }
-            }
+            })
         }
     }
 

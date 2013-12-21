@@ -25,17 +25,17 @@ pub static BADENCODING: c_int = 10;
 pub static UNKNOWN: c_int = 11;
 
 #[cfg(target_os = "macos")]
-#[nolink]
-#[link_args="-lhubbub -lparserutils -liconv"]
+#[link(name = "hubbub")]
+#[link(name = "parserutils")]
+#[link(name = "iconv")]
 extern { }
 
 #[cfg(target_os = "linux")]
 #[cfg(target_os = "android")]
-#[nolink]
-#[link_args="-lhubbub -lparserutils"]
+#[link(name = "hubbub")]
+#[link(name = "parserutils")]
 extern { }
 
-#[nolink]
 extern {
     pub fn hubbub_error_to_string(error: Error) -> *u8;
 }

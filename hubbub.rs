@@ -12,7 +12,7 @@
 use std::cast;
 use std::libc;
 use std::libc::{c_void, size_t};
-use std::ptr::{null, to_unsafe_ptr};
+use std::ptr::null;
 use ll;
 
 pub enum QuirksMode {
@@ -98,7 +98,7 @@ pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
     let hubbub_error = encoding.to_c_str().with_ref(|encoding_c: *libc::c_char| {
         unsafe {
             ll::parser::hubbub_parser_create(cast::transmute(encoding_c), fix_encoding, allocator,
-                                             null(), to_unsafe_ptr(&hubbub_parser))
+                                             null(), &hubbub_parser)
         }
     });
     assert!(hubbub_error == ll::OK);
@@ -132,12 +132,12 @@ impl<'a> Parser<'a> {
                 encoding_change: tree_callbacks::encoding_change,
                 complete_script: tree_callbacks::complete_script,
                 complete_style: tree_callbacks::complete_style,
-                ctx: unsafe { cast::transmute(to_unsafe_ptr(&self.tree_handler)) },
+                ctx: unsafe { cast::transmute(&self.tree_handler) },
             }
         });
 
         let ptr: *ll::TreeHandler =
-            to_unsafe_ptr(&self.tree_handler.get_ref().ll_tree_handler);
+            &self.tree_handler.get_ref().ll_tree_handler;
 
         unsafe {
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
@@ -210,7 +210,7 @@ pub mod tree_callbacks {
 
     use std::cast;
     use std::libc::{c_void, c_char};
-    use std::ptr::offset;
+    use std::ptr::RawPtr;
     use std::str;
     use std::vec;
     use super::{NodeDataPtr, Ns, NullNs, HtmlNs, MathMlNs, SvgNs, XLinkNs, XmlNs, XmlNsNs};
@@ -259,7 +259,7 @@ pub mod tree_callbacks {
         debug!("from_hubbub_attributes n={:u}", n_attributes as uint);
         unsafe {
             vec::from_fn(n_attributes as uint, |i| {
-                let attribute = offset(attributes, i as int);
+                let attribute = attributes.offset(i as int);
                 Attribute {
                     ns: from_hubbub_ns((*attribute).ns),
                     name: from_hubbub_string(&(*attribute).name),

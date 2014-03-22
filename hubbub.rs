@@ -211,8 +211,8 @@ pub mod tree_callbacks {
     use std::cast;
     use std::libc::{c_void, c_char};
     use std::ptr::RawPtr;
+    use std::slice;
     use std::str;
-    use std::vec;
     use super::{NodeDataPtr, Ns, NullNs, HtmlNs, MathMlNs, SvgNs, XLinkNs, XmlNs, XmlNsNs};
     use super::{QuirksMode, NoQuirks, LimitedQuirks, FullQuirks};
     use super::{Attribute, Tag, Doctype, TreeHandlerPair};
@@ -258,7 +258,7 @@ pub mod tree_callbacks {
     pub fn from_hubbub_attributes(attributes: *ll::Attribute, n_attributes: u32) -> ~[Attribute] {
         debug!("from_hubbub_attributes n={:u}", n_attributes as uint);
         unsafe {
-            vec::from_fn(n_attributes as uint, |i| {
+            slice::from_fn(n_attributes as uint, |i| {
                 let attribute = attributes.offset(i as int);
                 Attribute {
                     ns: from_hubbub_ns((*attribute).ns),

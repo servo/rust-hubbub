@@ -7,7 +7,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use std::libc::{c_int, c_void, size_t, c_char};
+use libc::{c_int, c_void, size_t, c_char};
 
 // errors.h
 
@@ -69,7 +69,7 @@ pub struct ParserOptParamsContentModel {
 }
 
 pub mod parser {
-    use std::libc::{c_void, size_t, c_char};
+    use libc::{c_void, size_t, c_char};
     use super::{Parser, Error, ParserOptType, CharsetSource};
 
     #[nolink]

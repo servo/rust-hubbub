@@ -9,9 +9,9 @@
 
 // High-level bindings to the Hubbub HTML5 parser.
 
+use libc;
+use libc::{c_void, size_t};
 use std::cast;
-use std::libc;
-use std::libc::{c_void, size_t};
 use std::ptr::null;
 use ll;
 
@@ -208,8 +208,8 @@ impl<'a> Parser<'a> {
 
 pub mod tree_callbacks {
 
+    use libc::{c_void, c_char};
     use std::cast;
-    use std::libc::{c_void, c_char};
     use std::ptr::RawPtr;
     use std::slice;
     use std::str;

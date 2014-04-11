@@ -93,26 +93,26 @@ pub mod parser {
 // tree.h
 
 pub struct TreeHandler {
-    create_comment: extern "C" fn(*c_void, *String, *mut *c_void) -> Error,
-    create_doctype: extern "C" fn(*c_void, *Doctype, *mut *c_void) -> Error,
-    create_element: extern "C" fn(*c_void, *Tag, *mut *c_void) -> Error,
-    create_text: extern "C" fn(*c_void, *String, *mut *c_void) -> Error,
-    ref_node: extern "C" fn(*c_void, *c_void) -> Error,
-    unref_node: extern "C" fn(*c_void, *c_void) -> Error,
-    append_child: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
-    insert_before: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
-    remove_child: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
-    clone_node: extern "C" fn(*c_void, *c_void, bool, *mut *c_void) -> Error,
-    reparent_children: extern "C" fn(*c_void, *c_void, *c_void) -> Error,
-    get_parent: extern "C" fn(*c_void, *c_void, bool, *mut *c_void) -> Error,
-    has_children: extern "C" fn(*c_void, *c_void, *mut bool) -> Error,
-    form_associate: extern "C" fn(*c_void, *c_void, *c_void) -> Error,
-    add_attributes: extern "C" fn(*c_void, *c_void, *Attribute, u32) -> Error,
-    set_quirks_mode: extern "C" fn(*c_void, QuirksMode) -> Error,
-    encoding_change: extern "C" fn(*c_void, *c_char) -> Error,
-    complete_script: extern "C" fn(*c_void, *c_void) -> Error,
-    complete_style: extern "C" fn(*c_void, *c_void) -> Error,
-    ctx: *c_void,
+    pub create_comment: extern "C" fn(*c_void, *String, *mut *c_void) -> Error,
+    pub create_doctype: extern "C" fn(*c_void, *Doctype, *mut *c_void) -> Error,
+    pub create_element: extern "C" fn(*c_void, *Tag, *mut *c_void) -> Error,
+    pub create_text: extern "C" fn(*c_void, *String, *mut *c_void) -> Error,
+    pub ref_node: extern "C" fn(*c_void, *c_void) -> Error,
+    pub unref_node: extern "C" fn(*c_void, *c_void) -> Error,
+    pub append_child: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
+    pub insert_before: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
+    pub remove_child: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
+    pub clone_node: extern "C" fn(*c_void, *c_void, bool, *mut *c_void) -> Error,
+    pub reparent_children: extern "C" fn(*c_void, *c_void, *c_void) -> Error,
+    pub get_parent: extern "C" fn(*c_void, *c_void, bool, *mut *c_void) -> Error,
+    pub has_children: extern "C" fn(*c_void, *c_void, *mut bool) -> Error,
+    pub form_associate: extern "C" fn(*c_void, *c_void, *c_void) -> Error,
+    pub add_attributes: extern "C" fn(*c_void, *c_void, *Attribute, u32) -> Error,
+    pub set_quirks_mode: extern "C" fn(*c_void, QuirksMode) -> Error,
+    pub encoding_change: extern "C" fn(*c_void, *c_char) -> Error,
+    pub complete_script: extern "C" fn(*c_void, *c_void) -> Error,
+    pub complete_style: extern "C" fn(*c_void, *c_void) -> Error,
+    pub ctx: *c_void,
 }
 
 // types.h
@@ -156,36 +156,36 @@ pub static NS_XML: c_int = 5;
 pub static NS_XMLNS: c_int = 6;
 
 pub struct String {
-    ptr: *u8,
-    len: size_t
+    pub ptr: *u8,
+    pub len: size_t
 }
 
 pub struct Attribute {
-    ns: NS,
-    name: String,
-    value: String,
+    pub ns: NS,
+    pub name: String,
+    pub value: String,
 }
 
 pub struct Doctype {
-    name: String,
-    public_missing: bool,
-    public_id: String,
-    system_missing: bool,
-    system_id: String,
-    force_quirks: bool,
+    pub name: String,
+    pub public_missing: bool,
+    pub public_id: String,
+    pub system_missing: bool,
+    pub system_id: String,
+    pub force_quirks: bool,
 }
 
 pub struct Tag {
-    ns: NS,
-    name: String,
-    n_attributes: u32,
-    attributes: *Attribute,
-    self_closing: bool,
+    pub ns: NS,
+    pub name: String,
+    pub n_attributes: u32,
+    pub attributes: *Attribute,
+    pub self_closing: bool,
 }
 
 // Token data
 pub struct Token {
-    token_type: TokenType,
-    data: u8,   // union: one of Doctype, Tag, Comment (string), or Character (string)
+    pub token_type: TokenType,
+    pub data: u8,   // union: one of Doctype, Tag, Comment (string), or Character (string)
 }
 

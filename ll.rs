@@ -55,17 +55,17 @@ pub static PARSER_PAUSE: c_int = 6;
 pub static PARSER_ENABLE_STYLING: c_int = 7;
 
 pub struct ParserOptParamsTokenHandler {
-    handler: *u8,
-    pw: *c_void
+    pub handler: *u8,
+    pub pw: *c_void
 }
 
 pub struct ParserOptParamsErrorHandler {
-    handler: *u8,
-    pw: *c_void
+    pub handler: *u8,
+    pub pw: *c_void
 }
 
 pub struct ParserOptParamsContentModel {
-    content_model: ContentModel
+    pub content_model: ContentModel
 }
 
 pub mod parser {

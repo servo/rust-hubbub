@@ -32,58 +32,58 @@ pub enum Ns {
 }
 
 pub struct Doctype {
-    name: ~str,
-    public_id: Option<~str>,
-    system_id: Option<~str>,
-    force_quirks: bool
+    pub name: ~str,
+    pub public_id: Option<~str>,
+    pub system_id: Option<~str>,
+    pub force_quirks: bool
 }
 
 pub struct Attribute {
-    ns: Ns,
-    name: ~str,
-    value: ~str,
+    pub ns: Ns,
+    pub name: ~str,
+    pub value: ~str,
 }
 
 pub struct Tag {
-    ns: Ns,
-    name: ~str,
-    attributes: ~[Attribute],
-    self_closing: bool
+    pub ns: Ns,
+    pub name: ~str,
+    pub attributes: ~[Attribute],
+    pub self_closing: bool
 }
 
 // FIXME: This is terribly type-unsafe. But we don't have working generic extern functions yet...
 pub type NodeDataPtr = uint;
 
 pub struct TreeHandler<'a> {
-    create_comment: |data: ~str|: 'a -> NodeDataPtr,
-    create_doctype: |doctype: ~Doctype|: 'a -> NodeDataPtr,
-    create_element: |tag: ~Tag|: 'a -> NodeDataPtr,
-    create_text: |data: ~str|: 'a -> NodeDataPtr,
-    ref_node: |node: NodeDataPtr|: 'a,
-    unref_node: |node: NodeDataPtr|: 'a,
-    append_child: |parent: NodeDataPtr, child: NodeDataPtr|: 'a -> NodeDataPtr,
-    insert_before: |parent: NodeDataPtr, child: NodeDataPtr|: 'a -> NodeDataPtr,
-    remove_child: |parent: NodeDataPtr, child: NodeDataPtr|: 'a -> NodeDataPtr,
-    clone_node: |node: NodeDataPtr, deep: bool|: 'a -> NodeDataPtr,
-    reparent_children: |node: NodeDataPtr, new_parent: NodeDataPtr|: 'a -> NodeDataPtr,
-    get_parent: |node: NodeDataPtr, element_only: bool|: 'a -> NodeDataPtr,
-    has_children: |node: NodeDataPtr|: 'a -> bool,
-    form_associate: |form: NodeDataPtr, node: NodeDataPtr|: 'a,
-    add_attributes: |node: NodeDataPtr, attributes: ~[Attribute]|: 'a,
-    set_quirks_mode: |mode: QuirksMode|: 'a,
-    encoding_change: |encname: ~str|: 'a,
-    complete_script: |script: NodeDataPtr|: 'a,
-    complete_style: |style: NodeDataPtr|: 'a,
+    pub create_comment: |data: ~str|: 'a -> NodeDataPtr,
+    pub create_doctype: |doctype: ~Doctype|: 'a -> NodeDataPtr,
+    pub create_element: |tag: ~Tag|: 'a -> NodeDataPtr,
+    pub create_text: |data: ~str|: 'a -> NodeDataPtr,
+    pub ref_node: |node: NodeDataPtr|: 'a,
+    pub unref_node: |node: NodeDataPtr|: 'a,
+    pub append_child: |parent: NodeDataPtr, child: NodeDataPtr|: 'a -> NodeDataPtr,
+    pub insert_before: |parent: NodeDataPtr, child: NodeDataPtr|: 'a -> NodeDataPtr,
+    pub remove_child: |parent: NodeDataPtr, child: NodeDataPtr|: 'a -> NodeDataPtr,
+    pub clone_node: |node: NodeDataPtr, deep: bool|: 'a -> NodeDataPtr,
+    pub reparent_children: |node: NodeDataPtr, new_parent: NodeDataPtr|: 'a -> NodeDataPtr,
+    pub get_parent: |node: NodeDataPtr, element_only: bool|: 'a -> NodeDataPtr,
+    pub has_children: |node: NodeDataPtr|: 'a -> bool,
+    pub form_associate: |form: NodeDataPtr, node: NodeDataPtr|: 'a,
+    pub add_attributes: |node: NodeDataPtr, attributes: ~[Attribute]|: 'a,
+    pub set_quirks_mode: |mode: QuirksMode|: 'a,
+    pub encoding_change: |encname: ~str|: 'a,
+    pub complete_script: |script: NodeDataPtr|: 'a,
+    pub complete_style: |style: NodeDataPtr|: 'a,
 }
 
 pub struct TreeHandlerPair<'a> {
-    tree_handler: &'a TreeHandler<'a>,
-    ll_tree_handler: ll::TreeHandler
+    pub tree_handler: &'a TreeHandler<'a>,
+    pub ll_tree_handler: ll::TreeHandler
 }
 
 pub struct Parser<'a> {
-    hubbub_parser: *ll::Parser,
-    tree_handler: Option<TreeHandlerPair<'a>>,
+    pub hubbub_parser: *ll::Parser,
+    pub tree_handler: Option<TreeHandlerPair<'a>>,
 }
 
 #[unsafe_destructor]

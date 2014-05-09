@@ -56,8 +56,8 @@ pub type NodeDataPtr = uint;
 
 pub struct TreeHandler<'a> {
     pub create_comment: |data: ~str|: 'a -> NodeDataPtr,
-    pub create_doctype: |doctype: ~Doctype|: 'a -> NodeDataPtr,
-    pub create_element: |tag: ~Tag|: 'a -> NodeDataPtr,
+    pub create_doctype: |doctype: Box<Doctype>|: 'a -> NodeDataPtr,
+    pub create_element: |tag: Box<Tag>|: 'a -> NodeDataPtr,
     pub create_text: |data: ~str|: 'a -> NodeDataPtr,
     pub ref_node: |node: NodeDataPtr|: 'a,
     pub unref_node: |node: NodeDataPtr|: 'a,
@@ -268,8 +268,8 @@ pub mod tree_callbacks {
         }
     }
 
-    pub fn from_hubbub_tag(tag: &ll::Tag) -> ~Tag {
-        ~Tag {
+    pub fn from_hubbub_tag(tag: &ll::Tag) -> Box<Tag> {
+        box Tag {
             ns: from_hubbub_ns((*tag).ns),
             name: from_hubbub_string(&(*tag).name),
             attributes: from_hubbub_attributes((*tag).attributes, (*tag).n_attributes),
@@ -277,8 +277,8 @@ pub mod tree_callbacks {
         }
     }
 
-    pub fn from_hubbub_doctype(doctype: &ll::Doctype) -> ~Doctype {
-        ~Doctype {
+    pub fn from_hubbub_doctype(doctype: &ll::Doctype) -> Box<Doctype> {
+        box Doctype {
             name: from_hubbub_string(&doctype.name),
             public_id:
                 if doctype.public_missing {

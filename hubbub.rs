@@ -47,7 +47,7 @@ pub struct Attribute {
 pub struct Tag {
     pub ns: Ns,
     pub name: ~str,
-    pub attributes: ~[Attribute],
+    pub attributes: Vec<Attribute>,
     pub self_closing: bool
 }
 
@@ -69,7 +69,7 @@ pub struct TreeHandler<'a> {
     pub get_parent: |node: NodeDataPtr, element_only: bool|: 'a -> NodeDataPtr,
     pub has_children: |node: NodeDataPtr|: 'a -> bool,
     pub form_associate: |form: NodeDataPtr, node: NodeDataPtr|: 'a,
-    pub add_attributes: |node: NodeDataPtr, attributes: ~[Attribute]|: 'a,
+    pub add_attributes: |node: NodeDataPtr, attributes: Vec<Attribute>|: 'a,
     pub set_quirks_mode: |mode: QuirksMode|: 'a,
     pub encoding_change: |encname: ~str|: 'a,
     pub complete_script: |script: NodeDataPtr|: 'a,
@@ -211,7 +211,6 @@ pub mod tree_callbacks {
     use libc::{c_void, c_char};
     use std::cast;
     use std::ptr::RawPtr;
-    use std::slice;
     use std::str;
     use super::{NodeDataPtr, Ns, NullNs, HtmlNs, MathMlNs, SvgNs, XLinkNs, XmlNs, XmlNsNs};
     use super::{QuirksMode, NoQuirks, LimitedQuirks, FullQuirks};
@@ -255,10 +254,10 @@ pub mod tree_callbacks {
         }
     }
 
-    pub fn from_hubbub_attributes(attributes: *ll::Attribute, n_attributes: u32) -> ~[Attribute] {
+    pub fn from_hubbub_attributes(attributes: *ll::Attribute, n_attributes: u32) -> Vec<Attribute> {
         debug!("from_hubbub_attributes n={:u}", n_attributes as uint);
         unsafe {
-            slice::from_fn(n_attributes as uint, |i| {
+            Vec::from_fn(n_attributes as uint, |i| {
                 let attribute = attributes.offset(i as int);
                 Attribute {
                     ns: from_hubbub_ns((*attribute).ns),

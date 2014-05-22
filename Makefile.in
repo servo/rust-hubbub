@@ -6,6 +6,7 @@ CXXFLAGS ?=
 AR ?= ar
 RUSTC ?= rustc
 RUSTFLAGS += -L . -L ../libhubbub -L ../../libparserutils/libparserutils
+EXT_DEPS ?=
 
 RUST_SRC=$(shell find $(VPATH)/. -type f -name '*.rs')
 
@@ -15,7 +16,7 @@ all:	librusthubbub.dummy
 %.o:	%.c
 	$(CC) $< -o $@ -c $(CFLAGS)
 
-librusthubbub.dummy: hubbub.rc $(RUST_SRC)
+librusthubbub.dummy: hubbub.rc $(RUST_SRC) $(EXT_DEPS)
 	$(RUSTC) $(RUSTFLAGS) $< --out-dir .
 	touch $@
 

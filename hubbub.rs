@@ -11,7 +11,7 @@
 
 use libc;
 use libc::{c_void, size_t};
-use std::cast;
+use std::mem;
 use std::ptr::null;
 use ll;
 
@@ -32,21 +32,21 @@ pub enum Ns {
 }
 
 pub struct Doctype {
-    pub name: ~str,
-    pub public_id: Option<~str>,
-    pub system_id: Option<~str>,
+    pub name: String,
+    pub public_id: Option<String>,
+    pub system_id: Option<String>,
     pub force_quirks: bool
 }
 
 pub struct Attribute {
     pub ns: Ns,
-    pub name: ~str,
-    pub value: ~str,
+    pub name: String,
+    pub value: String,
 }
 
 pub struct Tag {
     pub ns: Ns,
-    pub name: ~str,
+    pub name: String,
     pub attributes: Vec<Attribute>,
     pub self_closing: bool
 }
@@ -55,10 +55,10 @@ pub struct Tag {
 pub type NodeDataPtr = uint;
 
 pub struct TreeHandler<'a> {
-    pub create_comment: |data: ~str|: 'a -> NodeDataPtr,
+    pub create_comment: |data: String|: 'a -> NodeDataPtr,
     pub create_doctype: |doctype: Box<Doctype>|: 'a -> NodeDataPtr,
     pub create_element: |tag: Box<Tag>|: 'a -> NodeDataPtr,
-    pub create_text: |data: ~str|: 'a -> NodeDataPtr,
+    pub create_text: |data: String|: 'a -> NodeDataPtr,
     pub ref_node: |node: NodeDataPtr|: 'a,
     pub unref_node: |node: NodeDataPtr|: 'a,
     pub append_child: |parent: NodeDataPtr, child: NodeDataPtr|: 'a -> NodeDataPtr,
@@ -71,7 +71,7 @@ pub struct TreeHandler<'a> {
     pub form_associate: |form: NodeDataPtr, node: NodeDataPtr|: 'a,
     pub add_attributes: |node: NodeDataPtr, attributes: Vec<Attribute>|: 'a,
     pub set_quirks_mode: |mode: QuirksMode|: 'a,
-    pub encoding_change: |encname: ~str|: 'a,
+    pub encoding_change: |encname: String|: 'a,
     pub complete_script: |script: NodeDataPtr|: 'a,
     pub complete_style: |style: NodeDataPtr|: 'a,
 }
@@ -97,7 +97,7 @@ pub fn Parser(encoding: &str, fix_encoding: bool) -> Parser {
     let hubbub_parser = null();
     let hubbub_error = encoding.to_c_str().with_ref(|encoding_c: *libc::c_char| {
         unsafe {
-            ll::parser::hubbub_parser_create(cast::transmute(encoding_c), fix_encoding, allocator,
+            ll::parser::hubbub_parser_create(mem::transmute(encoding_c), fix_encoding, allocator,
                                              null(), &hubbub_parser)
         }
     });
@@ -132,7 +132,7 @@ impl<'a> Parser<'a> {
                 encoding_change: tree_callbacks::encoding_change,
                 complete_script: tree_callbacks::complete_script,
                 complete_style: tree_callbacks::complete_style,
-                ctx: unsafe { cast::transmute(&self.tree_handler) },
+                ctx: unsafe { mem::transmute(&self.tree_handler) },
             }
         });
 
@@ -142,7 +142,7 @@ impl<'a> Parser<'a> {
         unsafe {
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                                 ll::PARSER_TREE_HANDLER,
-                                                                cast::transmute(&ptr));
+                                                                mem::transmute(&ptr));
             assert!(hubbub_error == ll::OK);
         }
     }
@@ -152,7 +152,7 @@ impl<'a> Parser<'a> {
             debug!("setting document node");
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                                 ll::PARSER_DOCUMENT_NODE,
-                                                                cast::transmute(&node));
+                                                                mem::transmute(&node));
             assert!(hubbub_error == ll::OK);
         }
     }
@@ -162,7 +162,7 @@ impl<'a> Parser<'a> {
             debug!("enabling scripting");
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                                 ll::PARSER_ENABLE_SCRIPTING,
-                                                                cast::transmute(&enable));
+                                                                mem::transmute(&enable));
             assert!(hubbub_error == ll::OK);
         }
     }
@@ -172,7 +172,7 @@ impl<'a> Parser<'a> {
             debug!("enabling styling");
             let hubbub_error = ll::parser::hubbub_parser_setopt(self.hubbub_parser,
                                                                 ll::PARSER_ENABLE_STYLING,
-                                                                cast::transmute(&enable));
+                                                                mem::transmute(&enable));
             assert!(hubbub_error == ll::OK);
         }
     }
@@ -209,7 +209,7 @@ impl<'a> Parser<'a> {
 pub mod tree_callbacks {
 
     use libc::{c_void, c_char};
-    use std::cast;
+    use std::mem;
     use std::ptr::RawPtr;
     use std::str;
     use super::{NodeDataPtr, Ns, NullNs, HtmlNs, MathMlNs, SvgNs, XLinkNs, XmlNs, XmlNsNs};
@@ -220,10 +220,10 @@ pub mod tree_callbacks {
     // Data conversions
 
     pub fn from_hubbub_node(node: *c_void) -> NodeDataPtr {
-        unsafe { cast::transmute(node) }
+        unsafe { mem::transmute(node) }
     }
 
-    pub fn from_hubbub_string(string: &ll::String) -> ~str {
+    pub fn from_hubbub_string(string: &ll::String) -> String {
         unsafe {
             debug!("from_hubbub_string: {:u}", (*string).len as uint);
             let s = str::raw::from_buf_len((*string).ptr, (*string).len as uint);
@@ -297,7 +297,7 @@ pub mod tree_callbacks {
     }
 
     pub fn to_hubbub_node(node: NodeDataPtr) -> *c_void {
-        unsafe { cast::transmute(node) }
+        unsafe { mem::transmute(node) }
     }
 
     // Callbacks
@@ -305,10 +305,10 @@ pub mod tree_callbacks {
     pub extern fn create_comment(ctx: *c_void, data: *ll::String, result: *mut *c_void)
                           -> ll::Error {
         debug!("ll create comment");
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
-            let data: &ll::String = cast::transmute(data);
+            let data: &ll::String = mem::transmute(data);
             *result = to_hubbub_node((this.tree_handler.create_comment)(from_hubbub_string(data)));
         }
         return ll::OK;
@@ -317,10 +317,10 @@ pub mod tree_callbacks {
     pub extern fn create_doctype(ctx: *c_void, doctype: *ll::Doctype, result: *mut *c_void)
                           -> ll::Error {
         debug!("ll create doctype");
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
-            let doctype: &ll::Doctype = cast::transmute(doctype);
+            let doctype: &ll::Doctype = mem::transmute(doctype);
             *result = to_hubbub_node((this.tree_handler.create_doctype)(from_hubbub_doctype(doctype)));
         }
         return ll::OK;
@@ -329,10 +329,10 @@ pub mod tree_callbacks {
     pub extern fn create_element(ctx: *c_void, tag: *ll::Tag, result: *mut *c_void)
                           -> ll::Error {
         debug!("ll create element");
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
-            let tag: &ll::Tag = cast::transmute(tag);
+            let tag: &ll::Tag = mem::transmute(tag);
             *result = to_hubbub_node((this.tree_handler.create_element)(from_hubbub_tag(tag)));
         }
         return ll::OK;
@@ -341,10 +341,10 @@ pub mod tree_callbacks {
     pub extern fn create_text(ctx: *c_void, data: *ll::String, result: *mut *c_void)
                        -> ll::Error {
         debug!("ll create text");
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
-            let data: &ll::String = cast::transmute(data);
+            let data: &ll::String = mem::transmute(data);
             *result = to_hubbub_node((this.tree_handler.create_text)(from_hubbub_string(data)));
         }
         return ll::OK;
@@ -352,7 +352,7 @@ pub mod tree_callbacks {
 
     pub extern fn ref_node(ctx: *c_void, node: *c_void) -> ll::Error {
         debug!("ll ref node");
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.ref_node)(from_hubbub_node(node));
         return ll::OK;
@@ -360,7 +360,7 @@ pub mod tree_callbacks {
 
     pub extern fn unref_node(ctx: *c_void, node: *c_void) -> ll::Error {
         debug!("ll unref node");
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.unref_node)(from_hubbub_node(node));
         return ll::OK;
@@ -369,7 +369,7 @@ pub mod tree_callbacks {
     pub extern fn append_child(ctx: *c_void, parent: *c_void, child: *c_void, result: *mut *c_void)
                         -> ll::Error {
         debug!("ll append child");
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
             *result = to_hubbub_node((this.tree_handler.append_child)(from_hubbub_node(parent),
@@ -381,7 +381,7 @@ pub mod tree_callbacks {
     pub extern fn insert_before(ctx: *c_void, parent: *c_void, child: *c_void,
                                 result: *mut *c_void) -> ll::Error {
         debug!("ll insert before");
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
             *result = to_hubbub_node((this.tree_handler.insert_before)(from_hubbub_node(parent),
@@ -394,7 +394,7 @@ pub mod tree_callbacks {
                         -> ll::Error {
         debug!("ll remove child");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
             *result = to_hubbub_node((this.tree_handler.remove_child)(from_hubbub_node(parent),
@@ -407,7 +407,7 @@ pub mod tree_callbacks {
                       -> ll::Error {
         debug!("ll clone node");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
             *result = to_hubbub_node((this.tree_handler.clone_node)(from_hubbub_node(node), deep));
@@ -419,7 +419,7 @@ pub mod tree_callbacks {
                              -> ll::Error {
         debug!("ll reparent children");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.reparent_children)(from_hubbub_node(node),
                                               from_hubbub_node(new_parent));
@@ -430,7 +430,7 @@ pub mod tree_callbacks {
                       -> ll::Error {
         debug!("ll get parent");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
             *result = to_hubbub_node((this.tree_handler.get_parent)(from_hubbub_node(node),
@@ -443,7 +443,7 @@ pub mod tree_callbacks {
             -> ll::Error {
         debug!("ll has children");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         unsafe {
             *result = (this.tree_handler.has_children)(from_hubbub_node(node));
@@ -454,7 +454,7 @@ pub mod tree_callbacks {
     pub extern fn form_associate(ctx: *c_void, form: *c_void, node: *c_void) -> ll::Error {
         debug!("ll form associate");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.form_associate)(from_hubbub_node(form), from_hubbub_node(node));
         return ll::OK;
@@ -467,7 +467,7 @@ pub mod tree_callbacks {
                               -> ll::Error {
         debug!("ll add attributes");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.add_attributes)(from_hubbub_node(node),
                                            from_hubbub_attributes(attributes, n_attributes));
@@ -477,7 +477,7 @@ pub mod tree_callbacks {
     pub extern fn set_quirks_mode(ctx: *c_void, mode: ll::QuirksMode) -> ll::Error {
         debug!("ll set quirks mode");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.set_quirks_mode)(from_hubbub_quirks_mode(mode));
         return ll::OK;
@@ -486,7 +486,7 @@ pub mod tree_callbacks {
     pub extern fn encoding_change(ctx: *c_void, encname: *c_char) -> ll::Error {
         debug!("ll encoding change");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.encoding_change)(unsafe { str::raw::from_c_str(encname) });
         return ll::OK;
@@ -495,7 +495,7 @@ pub mod tree_callbacks {
     pub extern fn complete_script(ctx: *c_void, script: *c_void) -> ll::Error {
         debug!("ll complete script");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.complete_script)(from_hubbub_node(script));
         return ll::OK;
@@ -504,7 +504,7 @@ pub mod tree_callbacks {
     pub extern fn complete_style(ctx: *c_void, style: *c_void) -> ll::Error {
         debug!("ll complete style");
 
-        let self_opt: &mut Option<TreeHandlerPair> = unsafe { cast::transmute(ctx) };
+        let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
         (this.tree_handler.complete_style)(from_hubbub_node(style));
         return ll::OK;

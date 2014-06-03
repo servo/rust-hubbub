@@ -72,7 +72,6 @@ pub mod parser {
     use libc::{c_void, size_t, c_char};
     use super::{Parser, Error, ParserOptType, CharsetSource};
 
-    #[nolink]
     extern {
         pub fn hubbub_parser_create(enc: *u8,
                                     fix_enc: bool,

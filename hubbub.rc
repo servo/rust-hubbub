@@ -12,7 +12,7 @@
 #![crate_type = "dylib"]
 #![crate_type = "rlib"]
 
-#![feature(phase)]
+#![feature(phase, unsafe_destructor)]
 
 extern crate libc;
 #[phase(syntax, link)]

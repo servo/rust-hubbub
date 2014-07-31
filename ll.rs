@@ -25,19 +25,19 @@ pub static BADENCODING: c_int = 10;
 pub static UNKNOWN: c_int = 11;
 
 #[cfg(target_os = "macos")]
-#[link(name = "hubbub")]
-#[link(name = "parserutils")]
+#[link(name = "hubbub", kind = "static")]
+#[link(name = "parserutils", kind = "static")]
 #[link(name = "iconv")]
 extern { }
 
 #[cfg(target_os = "linux")]
 #[cfg(target_os = "android")]
-#[link(name = "hubbub")]
-#[link(name = "parserutils")]
+#[link(name = "hubbub", kind = "static")]
+#[link(name = "parserutils", kind = "static")]
 extern { }
 
 extern {
-    pub fn hubbub_error_to_string(error: Error) -> *u8;
+    pub fn hubbub_error_to_string(error: Error) -> *mut u8;
 }
 
 // parser.h
@@ -55,13 +55,13 @@ pub static PARSER_PAUSE: c_int = 6;
 pub static PARSER_ENABLE_STYLING: c_int = 7;
 
 pub struct ParserOptParamsTokenHandler {
-    pub handler: *u8,
-    pub pw: *c_void
+    pub handler: *mut u8,
+    pub pw: *mut c_void
 }
 
 pub struct ParserOptParamsErrorHandler {
-    pub handler: *u8,
-    pub pw: *c_void
+    pub handler: *mut u8,
+    pub pw: *mut c_void
 }
 
 pub struct ParserOptParamsContentModel {
@@ -73,45 +73,45 @@ pub mod parser {
     use super::{Parser, Error, ParserOptType, CharsetSource};
 
     extern {
-        pub fn hubbub_parser_create(enc: *u8,
+        pub fn hubbub_parser_create(enc: *const u8,
                                     fix_enc: bool,
-                                    alloc: extern "C" fn(*mut c_void, size_t, *c_void) -> *mut c_void,
-                                    pw: *c_void,
-                                    parser: **Parser)
+                                    alloc: extern "C" fn(*mut c_void, size_t, *mut c_void) -> *mut c_void,
+                                    pw: *mut c_void,
+                                    parser: *mut *mut Parser)
             -> Error;
-        pub fn hubbub_parser_destroy(parser: *Parser) -> Error;
-        pub fn hubbub_parser_setopt(parser: *Parser, opt_type: ParserOptType, params: *c_void)
+        pub fn hubbub_parser_destroy(parser: *mut Parser) -> Error;
+        pub fn hubbub_parser_setopt(parser: *mut Parser, opt_type: ParserOptType, params: *mut c_void)
             -> Error;
-        pub fn hubbub_parser_parse_chunk(parser: *Parser, data: *u8, len: size_t) -> Error;
-        pub fn hubbub_parser_insert_chunk(parser: *Parser, data: *u8, len: size_t) -> Error;
-        pub fn hubbub_parser_completed(parser: *Parser) -> Error;
-        pub fn hubbub_parser_read_charset(parser: *Parser, source: *CharsetSource) -> *c_char;
+        pub fn hubbub_parser_parse_chunk(parser: *mut Parser, data: *const u8, len: size_t) -> Error;
+        pub fn hubbub_parser_insert_chunk(parser: *mut Parser, data: *const u8, len: size_t) -> Error;
+        pub fn hubbub_parser_completed(parser: *mut Parser) -> Error;
+        pub fn hubbub_parser_read_charset(parser: *mut Parser, source: *mut CharsetSource) -> *const c_char;
     }
 }
 
 // tree.h
 
 pub struct TreeHandler {
-    pub create_comment: extern "C" fn(*c_void, *String, *mut *c_void) -> Error,
-    pub create_doctype: extern "C" fn(*c_void, *Doctype, *mut *c_void) -> Error,
-    pub create_element: extern "C" fn(*c_void, *Tag, *mut *c_void) -> Error,
-    pub create_text: extern "C" fn(*c_void, *String, *mut *c_void) -> Error,
-    pub ref_node: extern "C" fn(*c_void, *c_void) -> Error,
-    pub unref_node: extern "C" fn(*c_void, *c_void) -> Error,
-    pub append_child: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
-    pub insert_before: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
-    pub remove_child: extern "C" fn(*c_void, *c_void, *c_void, *mut *c_void) -> Error,
-    pub clone_node: extern "C" fn(*c_void, *c_void, bool, *mut *c_void) -> Error,
-    pub reparent_children: extern "C" fn(*c_void, *c_void, *c_void) -> Error,
-    pub get_parent: extern "C" fn(*c_void, *c_void, bool, *mut *c_void) -> Error,
-    pub has_children: extern "C" fn(*c_void, *c_void, *mut bool) -> Error,
-    pub form_associate: extern "C" fn(*c_void, *c_void, *c_void) -> Error,
-    pub add_attributes: extern "C" fn(*c_void, *c_void, *Attribute, u32) -> Error,
-    pub set_quirks_mode: extern "C" fn(*c_void, QuirksMode) -> Error,
-    pub encoding_change: extern "C" fn(*c_void, *c_char) -> Error,
-    pub complete_script: extern "C" fn(*c_void, *c_void) -> Error,
-    pub complete_style: extern "C" fn(*c_void, *c_void) -> Error,
-    pub ctx: *c_void,
+    pub create_comment: extern "C" fn(*mut c_void, *mut String, *mut *mut c_void) -> Error,
+    pub create_doctype: extern "C" fn(*mut c_void, *mut Doctype, *mut *mut c_void) -> Error,
+    pub create_element: extern "C" fn(*mut c_void, *mut Tag, *mut *mut c_void) -> Error,
+    pub create_text: extern "C" fn(*mut c_void, *mut String, *mut *mut c_void) -> Error,
+    pub ref_node: extern "C" fn(*mut c_void, *mut c_void) -> Error,
+    pub unref_node: extern "C" fn(*mut c_void, *mut c_void) -> Error,
+    pub append_child: extern "C" fn(*mut c_void, *mut c_void, *mut c_void, *mut *mut c_void) -> Error,
+    pub insert_before: extern "C" fn(*mut c_void, *mut c_void, *mut c_void, *mut *mut c_void) -> Error,
+    pub remove_child: extern "C" fn(*mut c_void, *mut c_void, *mut c_void, *mut *mut c_void) -> Error,
+    pub clone_node: extern "C" fn(*mut c_void, *mut c_void, bool, *mut *mut c_void) -> Error,
+    pub reparent_children: extern "C" fn(*mut c_void, *mut c_void, *mut c_void) -> Error,
+    pub get_parent: extern "C" fn(*mut c_void, *mut c_void, bool, *mut *mut c_void) -> Error,
+    pub has_children: extern "C" fn(*mut c_void, *mut c_void, *mut bool) -> Error,
+    pub form_associate: extern "C" fn(*mut c_void, *mut c_void, *mut c_void) -> Error,
+    pub add_attributes: extern "C" fn(*mut c_void, *mut c_void, *mut Attribute, u32) -> Error,
+    pub set_quirks_mode: extern "C" fn(*mut c_void, QuirksMode) -> Error,
+    pub encoding_change: extern "C" fn(*mut c_void, *mut c_char) -> Error,
+    pub complete_script: extern "C" fn(*mut c_void, *mut c_void) -> Error,
+    pub complete_style: extern "C" fn(*mut c_void, *mut c_void) -> Error,
+    pub ctx: *mut c_void,
 }
 
 // types.h
@@ -155,7 +155,7 @@ pub static NS_XML: c_int = 5;
 pub static NS_XMLNS: c_int = 6;
 
 pub struct String {
-    pub ptr: *u8,
+    pub ptr: *mut u8,
     pub len: size_t
 }
 
@@ -178,7 +178,7 @@ pub struct Tag {
     pub ns: NS,
     pub name: String,
     pub n_attributes: u32,
-    pub attributes: *Attribute,
+    pub attributes: *mut Attribute,
     pub self_closing: bool,
 }
 

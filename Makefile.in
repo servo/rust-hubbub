@@ -11,13 +11,13 @@ EXT_DEPS ?=
 RUST_SRC=$(shell find $(VPATH)/. -type f -name '*.rs')
 
 .PHONY: all
-all:	librusthubbub.dummy
+all:	libhubbub-servo.dummy
 
 %.o:	%.c
 	$(CC) $< -o $@ -c $(CFLAGS)
 
-librusthubbub.dummy: hubbub.rc $(RUST_SRC) $(EXT_DEPS)
-	$(RUSTC) $(RUSTFLAGS) $< --out-dir .
+libhubbub-servo.dummy: hubbub.rc $(RUST_SRC) $(EXT_DEPS)
+	$(RUSTC) $(RUSTFLAGS) $< --out-dir . -C extra-filename=-servo
 	touch $@
 
 .PHONY: check

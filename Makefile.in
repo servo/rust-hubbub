@@ -7,6 +7,9 @@ AR ?= ar
 RUSTC ?= rustc
 RUSTFLAGS += -L . -L ../libhubbub -L ../../libparserutils/libparserutils
 EXT_DEPS ?=
+RUSTDOC ?= rustdoc
+RUSTDOC_FLAGS ?=
+RUSTDOC_TARGET ?= doc
 
 RUST_SRC=$(shell find $(VPATH)/. -type f -name '*.rs')
 
@@ -19,6 +22,12 @@ all:	libhubbub-servo.dummy
 libhubbub-servo.dummy: hubbub.rc $(RUST_SRC) $(EXT_DEPS)
 	$(RUSTC) $(RUSTFLAGS) $< --out-dir . -C extra-filename=-servo
 	touch $@
+
+.PHONY: doc
+doc: $(RUSTDOC_TARGET)/hubbub/index.html
+
+$(RUSTDOC_TARGET)/hubbub/index.html: hubbub.rc $(RUST_SRC) $(EXT_DEPS)
+	$(RUSTDOC) $(RUSTDOC_FLAGS) $< -o $(RUSTDOC_TARGET)
 
 .PHONY: check
 check:

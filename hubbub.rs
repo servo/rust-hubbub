@@ -211,7 +211,7 @@ pub mod tree_callbacks {
     use libc::{c_void, c_char};
     use std::mem;
     use std::ptr::RawPtr;
-    use std::str;
+    use std::string;
     use super::{NodeDataPtr, Ns, NullNs, HtmlNs, MathMlNs, SvgNs, XLinkNs, XmlNs, XmlNsNs};
     use super::{QuirksMode, NoQuirks, LimitedQuirks, FullQuirks};
     use super::{Attribute, Tag, Doctype, TreeHandlerPair};
@@ -226,7 +226,7 @@ pub mod tree_callbacks {
     pub fn from_hubbub_string(string: &ll::String) -> String {
         unsafe {
             debug!("from_hubbub_string: {:u}", (*string).len as uint);
-            let s = str::raw::from_buf_len(&*(*string).ptr, (*string).len as uint);
+            let s = string::raw::from_buf_len(&*(*string).ptr, (*string).len as uint);
             debug!("from_hubbub_string: {:s}", s);
             s
         }
@@ -488,7 +488,7 @@ pub mod tree_callbacks {
 
         let self_opt: &mut Option<TreeHandlerPair> = unsafe { mem::transmute(ctx) };
         let this = self_opt.get_mut_ref();
-        (this.tree_handler.encoding_change)(unsafe { str::raw::from_c_str(&*encname) });
+        (this.tree_handler.encoding_change)(unsafe { string::raw::from_buf((&*encname) as *const i8 as *const u8) });
         return ll::OK;
     }
 

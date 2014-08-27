@@ -1,1 +1,4 @@
 /doc
+/target
+/Cargo.lock
+

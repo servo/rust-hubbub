@@ -1,0 +1,10 @@
+[package]
+
+name = "hubbub"
+version = "0.1.0"
+authors = ["The Servo Project Developers"]
+
+[dependencies.hubbub-sys]
+
+path = "../libhubbub"
+

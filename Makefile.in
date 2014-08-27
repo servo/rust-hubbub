@@ -11,7 +11,7 @@ RUSTDOC ?= rustdoc
 RUSTDOC_FLAGS ?=
 RUSTDOC_TARGET ?= doc
 
-RUST_SRC=$(shell find $(VPATH)/. -type f -name '*.rs')
+RUST_SRC=$(shell find $(VPATH)/src -type f -name '*.rs')
 
 .PHONY: all
 all:	libhubbub-servo.dummy
@@ -19,14 +19,14 @@ all:	libhubbub-servo.dummy
 %.o:	%.c
 	$(CC) $< -o $@ -c $(CFLAGS)
 
-libhubbub-servo.dummy: hubbub.rc $(RUST_SRC) $(EXT_DEPS)
+libhubbub-servo.dummy: src/lib.rs $(RUST_SRC) $(EXT_DEPS)
 	$(RUSTC) $(RUSTFLAGS) $< --out-dir . -C extra-filename=-servo
 	touch $@
 
 .PHONY: doc
 doc: $(RUSTDOC_TARGET)/hubbub/index.html
 
-$(RUSTDOC_TARGET)/hubbub/index.html: hubbub.rc $(RUST_SRC) $(EXT_DEPS)
+$(RUSTDOC_TARGET)/hubbub/index.html: src/lib.rs $(RUST_SRC) $(EXT_DEPS)
 	$(RUSTDOC) $(RUSTDOC_FLAGS) $< -o $(RUSTDOC_TARGET)
 
 .PHONY: check
